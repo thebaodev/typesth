@@ -13,7 +13,6 @@
 <a href="https://www.npmjs.com/package/semantic-release">
 <img alt="npm next version" src="https://img.shields.io/npm/v/semantic-release/next.svg">
 </a>
----
 
 ## What's in the stack
 
@@ -80,7 +79,7 @@ This project uses ESLint for linting. That is configured in `.eslintrc.js`.
 
 We use [Prettier](https://prettier.io/) for auto-formatting in this project. It's recommended to install an editor plugin (like the [VSCode Prettier plugin](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)) to get auto-formatting on save. There's also a `yarn format` script you can run to format all files in the project.
 
-## Ggetting help
+## Getting help
 
 if you have questions, concerns, bug reports, etc, please file an issue in this repository's Issue Tracker.
 

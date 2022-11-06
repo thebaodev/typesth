@@ -1,0 +1,28 @@
+name: 'Deploy'
+
+on:
+  release:
+    types:
+      - published
+  push:
+    branches:
+      - dev
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: 'Deploy app & run sanity tests'
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID}}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID}}
+          vercel-args: '--scope=robipop22' # change this to your project scope
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+          alias-domains: |
+            typesth.vercel.app

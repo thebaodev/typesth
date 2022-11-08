@@ -10,7 +10,6 @@ on:
       - main
   workflow_dispatch:
     - test
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -23,8 +22,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID}}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID}}
-          vercel-args: '--scope=thebaodev'
+          vercel-args: '--scope=thebaodev' # change this to your project scope
           scope: ${{ secrets.VERCEL_ORG_ID }}
           alias-domains: |
             typesth.vercel.app
-      - run: npm run semantic-release

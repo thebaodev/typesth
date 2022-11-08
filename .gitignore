@@ -15,6 +15,7 @@ node_modules
 .vercel
 .output
 .vscode
+.idea
 
 /build/
 /public/build

@@ -1,7 +1,17 @@
+import { TypeTester } from '~/components';
+
 const Index = () => (
-	<div className="flex justify-start items-center pt-20 h-screen w-screen flex-col text-center">
-		<h1>typesth</h1>
-	</div>
+	<main className="flex justify-center items-center h-screen w-screen flex-col text-center">
+		<header>
+			<h1>typesth</h1>
+		</header>
+		<div className="container flex-1 flex  justify-center items-center">
+			<section>
+				<TypeTester />
+			</section>
+		</div>
+		<footer>made with love by bao</footer>
+	</main>
 );
 
 export default Index;

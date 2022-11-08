@@ -19,7 +19,7 @@
 		"test:coverage": "vitest run --coverage",
 		"format:write": "prettier --write .",
 		"prepare": "husky install",
-		"semantic-release": "semantic-release"
+		"release": "semantic-release"
 	},
 	"eslintIgnore": [
 		"/node_modules",
@@ -68,6 +68,7 @@
 		"postcss-cli": "^10.0.0",
 		"postcss-import": "^15.0.0",
 		"prettier": "^2.7.1",
+		"semantic-release": "^19.0.5",
 		"stylelint": "^14.14.1",
 		"stylelint-config-prettier": "^9.0.3",
 		"stylelint-config-recommended": "^9.0.0",

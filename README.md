@@ -4,15 +4,9 @@
 <a href="https://github.com/thebaodev/typesth/discussions">
 <img alt="Join the community on GitHub Discussions" src="https://img.shields.io/badge/Join%20the%20community-on%20GitHub%20Discussions-blue">
 </a>
-<a href="https://github.com/semantic-release/semantic-release">
-<img alt="npm next version" src="https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release">
-</a>
-<a href="https://www.npmjs.com/package/semantic-release">
-<img alt="npm latest version" src="https://img.shields.io/npm/v/semantic-release/latest.svg">
-</a>
-<a href="https://www.npmjs.com/package/semantic-release">
-<img alt="npm next version" src="https://img.shields.io/npm/v/semantic-release/next.svg">
-</a>
+
+![ci/cd](https://github.com/thebaodev/typesth/workflows/build/badge.svg)
+![License](https://img.shields.io/github/license/thebaodev/typesth)
 
 ## What's in the stack
 

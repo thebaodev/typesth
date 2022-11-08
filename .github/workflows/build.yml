@@ -1,16 +1,33 @@
-name: 'build'
+name: ci/cd
 
 on:
   push:
-  workflow_dispatch:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v1
         with:
-          node-version: '16'
-      - run: npm install
-      - run: npm run build
+          node-version: ${{ matrix.node-version }}
+
+      - name: install
+        run: npm install
+
+      - name: lint
+        run: npm run lint
+
+      - name: test
+        run: npm run test
+
+      - name: build
+        run: npm run build

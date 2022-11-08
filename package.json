@@ -19,7 +19,7 @@
 		"test:coverage": "vitest run --coverage",
 		"format:write": "prettier --write .",
 		"prepare": "husky install",
-		"semantic-release": "semantic-release"
+		"release": "semantic-release"
 	},
 	"eslintIgnore": [
 		"/node_modules",

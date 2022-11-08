@@ -1,16 +1,17 @@
-name: 'Sanity on Demand'
+name: 'test'
 
 on:
+  push:
   workflow_dispatch:
-
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: 'Run ALL Tests'
+    name: 'test'
 
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: '16'
-      - run: yarn
+      - run: npm install
+      - run: npm run test

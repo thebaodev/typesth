@@ -13,7 +13,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: 'deploy'
 
     steps:
       - uses: actions/checkout@v3

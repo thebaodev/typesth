@@ -1,4 +1,4 @@
-import { TypeTester } from '~/components';
+import TypeTester from '~/components/TypeTester';
 
 const Index = () => (
 	<main className="flex justify-center items-center h-screen w-screen flex-col text-center">

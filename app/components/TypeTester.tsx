@@ -1,12 +1,17 @@
 import React, { forwardRef, useCallback, useEffect, useState } from 'react';
+import { useInterval } from '~/hooks';
 
 type TypeTesterProps = {
-	words?: string[];
+	words: string[];
+	options: {
+		extraLimit: number;
+	};
 };
 
-const defaultWords = ['hello', 'world', 'this', 'is', 'a', 'test'];
 const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
-	({ words = defaultWords }: TypeTesterProps, ref) => {
+	({ words, options }: TypeTesterProps, ref) => {
+		const [timer, setTimer] = useState(60);
+		const [isStart, setIsStart] = useState(false);
 		const [activeWord, setActiveWord] = useState(words[0]);
 		const [typed, setTyped] = useState('');
 		const [history, setHistory] = useState<string[]>([]);
@@ -19,10 +24,22 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 					case 'Tab':
 						break;
 					case 'Space':
+						if (!isStart) {
+							return;
+						}
+						if (typed.length === 0) {
+							return;
+						}
 						const nextWordIndex = words.indexOf(activeWord) + 1;
-						setActiveWord(words[nextWordIndex] || '');
-						setTyped('');
+						const nextWord = words[nextWordIndex];
+						if (!nextWord) {
+							setIsStart(false);
+							return;
+						}
+						setActiveWord(nextWord);
+						debugger;
 						setHistory([...history, typed]);
+						setTyped('');
 						break;
 					case 'Backspace':
 						if (typed.length === 0) {
@@ -36,10 +53,14 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 						setTyped(newValue);
 						break;
 					default:
+						if (!isStart) {
+							setIsStart(true);
+						}
+						if (typed.length >= activeWord.length + options.extraLimit) return;
 						setTyped(typed + e.key);
 				}
 			},
-			[activeWord, history, typed, words],
+			[activeWord, history, isStart, options.extraLimit, typed, words],
 		);
 
 		const attachEventListeners = useCallback(() => {
@@ -57,15 +78,26 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			};
 		}, [attachEventListeners, removeEventListeners]);
 
-		console.log({ typed });
-		const extraChars = typed.slice(activeWord.length);
+		useInterval(
+			() => {
+				if (timer === 0) {
+					setIsStart(false);
+				}
+				setTimer(timer - 1);
+			},
+			isStart ? 1000 : null,
+		);
+
 		return (
 			<div ref={ref}>
+				<div className="text-2x text-emerald-800">{timer}</div>
 				<div className="text-4xl flex flex-wrap gap-2">
 					{words.map((word, wordIndex) => {
 						const isTypedWord = history[wordIndex];
 						const isActive = word === activeWord;
-						console.log({ isTypedWord, isActive });
+						const extraChars = isActive
+							? typed.slice(activeWord.length)
+							: history[wordIndex]?.slice(word.length) || '';
 						return (
 							<span key={word + wordIndex}>
 								{word.split('').map((char, charIndex) => {
@@ -93,8 +125,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 									);
 								})}
 								<span>
-									{isActive &&
-										extraChars &&
+									{extraChars &&
 										extraChars.split('').map((char, charIndex) => (
 											<span className="text-red-500" key={char + charIndex}>
 												{char}
@@ -109,6 +140,13 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		);
 	},
 );
+
+TypeTester.defaultProps = {
+	words: ['hello', 'world', 'this', 'is', 'a', 'test'],
+	options: {
+		extraLimit: 10,
+	},
+};
 
 TypeTester.displayName = 'TypeTester';
 export default TypeTester;

@@ -1,7 +1,7 @@
 import React, { forwardRef, useCallback, useEffect, useState } from 'react';
 import { getShortcut, isFunctionKeys } from '~/helpers/keys';
-import { useInterval } from '~/hooks/useInterval';
 import { KEYCODES, SHORTCUTS } from '~/constant';
+import { useInterval } from '~/hooks/useInterval';
 
 type TypeTesterProps = {
 	words?: string[];
@@ -20,19 +20,35 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		}: TypeTesterProps,
 		ref,
 	) => {
-		const [timer, setTimer] = useState(60);
+		const [timer, setTimer] = useState(0);
 		const [isStart, setIsStart] = useState(false);
 		const [activeWord, setActiveWord] = useState('');
 		const [typed, setTyped] = useState('');
 		const [history, setHistory] = useState<string[]>([]);
+
+		const start = () => {
+			setIsStart(true);
+			setActiveWord(words[0] || '');
+		};
+
+		const stop = () => {
+			setIsStart(false);
+		};
 
 		const restart = () => {
 			setIsStart(false);
 			setActiveWord('');
 			setTyped('');
 			setHistory([]);
-			setTimer(60);
+			setTimer(0);
 		};
+
+		useInterval(
+			() => {
+				setTimer(timer + 1);
+			},
+			isStart ? 1000 : null,
+		);
 
 		const handleShortcuts = useCallback((e: KeyboardEvent) => {
 			const shortcut = getShortcut(e);
@@ -44,36 +60,47 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			}
 		}, []);
 
+		const handleNextWord = (nextIndex: number) => {
+			if (!isStart) {
+				return;
+			}
+			setActiveWord(words[nextIndex]);
+			setHistory([...history, typed]);
+			setTyped('');
+		};
+
+		const handlePrevWord = (prevIndex: number) => {
+			if (!isStart) {
+				return;
+			}
+			setActiveWord(words[prevIndex]);
+			setTyped(history[prevIndex] || '');
+			setHistory(history.splice(0, history.length - 1));
+		};
+
 		const handleKeyDown = useCallback(
 			(e: KeyboardEvent) => {
 				e.preventDefault();
 				handleShortcuts(e);
 				switch (e.code) {
 					case KEYCODES.SPACE:
-						if (!isStart) {
-							return;
+						if (typed.length > 0) {
+							const nextWordIndex = words.indexOf(activeWord) + 1;
+							if (nextWordIndex < 0) {
+								stop();
+								return;
+							}
+							handleNextWord(nextWordIndex);
 						}
-						if (typed.length === 0) {
-							return;
-						}
-						const nextWordIndex = words.indexOf(activeWord) + 1;
-						const nextWord = words[nextWordIndex];
-						if (!nextWord) {
-							setTyped('');
-							setHistory([...history, typed]);
-							setIsStart(false);
-							return;
-						}
-						setActiveWord(nextWord);
-						setHistory([...history, typed]);
-						setTyped('');
 						break;
 					case KEYCODES.BACKSPACE:
 						if (typed.length === 0) {
 							const prevWordIndex = words.indexOf(activeWord) - 1;
-							setActiveWord(words[prevWordIndex] || '');
-							setTyped(history[prevWordIndex] || '');
-							setHistory(history.splice(0, history.length - 1));
+							if (prevWordIndex < 0) {
+								stop();
+								return;
+							}
+							handlePrevWord(prevWordIndex);
 							return;
 						}
 						const newValue = typed.slice(0, -1);
@@ -82,8 +109,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 					default:
 						if (isFunctionKeys(e)) return;
 						if (!isStart) {
-							setIsStart(true);
-							setActiveWord(words[0] || '');
+							start();
 						}
 						if (typed.length >= activeWord.length + options.extraLimit) return;
 						setTyped(typed + e.key);
@@ -91,10 +117,12 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			},
 			[
 				activeWord,
+				handleNextWord,
+				handlePrevWord,
 				handleShortcuts,
-				history,
 				isStart,
 				options.extraLimit,
+				start,
 				typed,
 				words,
 			],
@@ -114,16 +142,6 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 				removeEventListeners();
 			};
 		}, [attachEventListeners, removeEventListeners]);
-
-		useInterval(
-			() => {
-				if (timer === 0) {
-					setIsStart(false);
-				}
-				setTimer(timer - 1);
-			},
-			isStart ? 1000 : null,
-		);
 
 		return (
 			<div ref={ref}>

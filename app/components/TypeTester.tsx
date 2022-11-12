@@ -1,7 +1,14 @@
-import React, { forwardRef, useCallback, useEffect, useState } from 'react';
+import React, {
+	forwardRef,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import { getShortcut, isFunctionKeys } from '~/helpers/keys';
 import { KEYCODES, SHORTCUTS } from '~/constant';
 import { useInterval } from '~/hooks/useInterval';
+import clsx from 'clsx';
 
 type TypeTesterProps = {
 	words?: string[];
@@ -71,12 +78,15 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 	) => {
 		const [timer, setTimer] = useState(0);
 		const [isStart, setIsStart] = useState(false);
+		const [isFocus, setIsFocus] = useState(false);
 		const [activeIndex, setActiveIndex] = useState(0);
 		const [typed, setTyped] = useState('');
 		const [history, setHistory] = useState<string[]>([]);
+		const caretRef = useRef<HTMLSpanElement>(null);
 
 		const start = () => {
 			setIsStart(true);
+			setIsFocus(true);
 			setActiveIndex(0);
 		};
 
@@ -130,7 +140,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 				setTyped(history[prevIndex] || '');
 				setHistory(history.splice(0, history.length - 1));
 			},
-			[history, isStart, words],
+			[history, isStart],
 		);
 
 		const handleKeyDown = useCallback(
@@ -199,8 +209,8 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		}, [attachEventListeners, removeEventListeners]);
 
 		return (
-			<div ref={ref}>
-				<div className="text-2x text-emerald-800">{timer}</div>
+			<div className="font-mono" ref={ref}>
+				<div className="text-2xl text-orange-500">{timer}</div>
 				<div className="text-4xl flex flex-wrap gap-2">
 					{words.map((word, wordIndex) => {
 						const isTypedWord = history[wordIndex];
@@ -209,7 +219,23 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 							? typed.slice(word.length)
 							: history[wordIndex]?.slice(word.length) || '';
 						return (
-							<span key={word + wordIndex}>
+							<span className="relative p-1" key={word + wordIndex}>
+								{isActive && (
+									<span
+										ref={caretRef}
+										className={clsx(
+											'absolute top-0 left-0 text-3xl text-orange-500 -mr-1 font-bold',
+											{
+												'animate-blink': !isFocus,
+											},
+										)}
+										style={{
+											left: typed.length * 21.6667,
+										}}
+									>
+										|
+									</span>
+								)}
 								{word.split('').map((char, charIndex) => {
 									const isTypedChar =
 										isTypedWord || (isActive && typed[charIndex]);
@@ -221,14 +247,12 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 									}
 									return (
 										<span
-											className={
-												!isTypedChar
-													? 'text-gray-500'
-													: isCorrect
-													? 'text-green-500'
-													: 'text-red-500'
-											}
 											key={char + charIndex}
+											className={clsx({
+												'text-gray-500': !isTypedChar,
+												'text-green-500': isTypedChar && isCorrect,
+												'text-red-500': isTypedChar && !isCorrect,
+											})}
 										>
 											{char}
 										</span>
@@ -237,7 +261,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 								<span>
 									{extraChars &&
 										extraChars.split('').map((char, charIndex) => (
-											<span className="text-red-500" key={char + charIndex}>
+											<span key={char + charIndex} className="text-red-500">
 												{char}
 											</span>
 										))}

@@ -6,9 +6,7 @@ const Index = () => (
 			<h1>typesth</h1>
 		</header>
 		<div className="container flex-1 flex  justify-center items-center">
-			<section>
-				<TypeTester />
-			</section>
+			<TypeTester />
 		</div>
 		<footer>made with love by bao</footer>
 	</main>

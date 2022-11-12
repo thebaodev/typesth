@@ -5,6 +5,7 @@ export const isFunctionKeys = (e: KeyboardEvent) => {
 	return (
 		Object.values(KEYCODES).includes(code) ||
 		e.ctrlKey ||
+		e.ctrlKey ||
 		e.altKey ||
 		e.metaKey ||
 		e.shiftKey

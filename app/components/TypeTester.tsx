@@ -9,10 +9,13 @@ import { getShortcut, isFunctionKeys } from '~/helpers/keys';
 import { KEYCODES, SHORTCUTS } from '~/constant';
 import { useInterval } from '~/hooks/useInterval';
 import clsx from 'clsx';
+import anime from 'animejs';
 
 type TypeTesterProps = {
 	words?: string[];
 	options?: {
+		fontSize: number;
+		showLines: number;
 		extraLimit: number;
 	};
 };
@@ -71,6 +74,8 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 				'ut',
 			],
 			options = {
+				fontSize: 48,
+				showLines: 3,
 				extraLimit: 10,
 			},
 		}: TypeTesterProps,
@@ -92,6 +97,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 
 		const stop = () => {
 			setIsStart(false);
+			setIsFocus(false);
 		};
 
 		const restart = () => {
@@ -143,6 +149,23 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			[history, isStart],
 		);
 
+		const caretDirection = useRef('forward');
+		const handleCaretPosition = useCallback(() => {
+			const caret = caretRef.current;
+			if (!caret) return;
+			anime({
+				targets: caret,
+				duration: 120,
+				opacity: 1,
+				left: typed.length * 30,
+				easing: 'linear',
+			});
+		}, [typed.length]);
+
+		useEffect(() => {
+			handleCaretPosition();
+		}, [handleCaretPosition]);
+
 		const handleKeyDown = useCallback(
 			(e: KeyboardEvent) => {
 				e.preventDefault();
@@ -156,6 +179,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 								return;
 							}
 							handleNextWord(nextWordIndex);
+							caretDirection.current = 'forward';
 						}
 						break;
 					case KEYCODES.BACKSPACE:
@@ -166,6 +190,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 								return;
 							}
 							handlePrevWord(prevWordIndex);
+							caretDirection.current = 'backward';
 							return;
 						}
 						const newValue = typed.slice(0, -1);
@@ -208,10 +233,19 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			};
 		}, [attachEventListeners, removeEventListeners]);
 
+		const lineHeight = options?.fontSize * 1.2 + 12; // 12 gap
 		return (
-			<div className="font-mono" ref={ref}>
-				<div className="text-2xl text-orange-500">{timer}</div>
-				<div className="text-4xl flex flex-wrap gap-2">
+			<div
+				className="w-2/3 flex flex-col flex-wrap items-start justify-center font-mono"
+				ref={ref}
+			>
+				<div className="text-3xl text-orange-500">{timer}</div>
+				<div
+					className="h-full w-full overflow-hidden text-5xl flex flex-wrap gap-2"
+					style={{
+						maxHeight: `${lineHeight * options.showLines}px`,
+					}}
+				>
 					{words.map((word, wordIndex) => {
 						const isTypedWord = history[wordIndex];
 						const isActive = wordIndex === activeIndex;
@@ -219,20 +253,25 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 							? typed.slice(word.length)
 							: history[wordIndex]?.slice(word.length) || '';
 						return (
-							<span className="relative p-1" key={word + wordIndex}>
+							<span
+								className="relative px-1 h-full leading-none"
+								key={word + wordIndex}
+								style={{
+									fontSize: `${options.fontSize}px`,
+									height: `${lineHeight}px`,
+								}}
+							>
 								{isActive && (
 									<span
 										ref={caretRef}
 										className={clsx(
-											'absolute top-0 left-0 flex bg-orange-400 w-1',
+											'absolute opacity-0 -top-6 h-full flex bg-orange-400 w-1 rounded-lg',
 											{
 												'animate-blink': !isFocus,
+												'left-0': caretDirection.current === 'forward',
+												'right-0': caretDirection.current === 'backward',
 											},
 										)}
-										style={{
-											height: '100%',
-											left: typed.length * 22,
-										}}
 									/>
 								)}
 								{word.split('').map((char, charIndex) => {

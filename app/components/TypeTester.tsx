@@ -9,11 +9,60 @@ type TypeTesterProps = {
 		extraLimit: number;
 	};
 };
-
 const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 	(
 		{
-			words = ['hello', 'world', 'this', 'is', 'a', 'test'],
+			words = [
+				'hello',
+				'world',
+				'this',
+				'is',
+				'a',
+				'test',
+				'of',
+				'the',
+				'lorem',
+				'ipsum',
+				'dolor',
+				'sit',
+				'amet',
+				'consectetur',
+				'adipiscing',
+				'elit',
+				'sed',
+				'do',
+				'eiusmod',
+				'tempor',
+				'incididunt',
+				'ut',
+				'consectetur',
+				'adipiscing',
+				'elit',
+				'sed',
+				'do',
+				'eiusmod',
+				'tempor',
+				'incididunt',
+				'ut',
+				'consectetur',
+				'adipiscing',
+				'elit',
+				'sed',
+				'do',
+				'eiusmod',
+				'tempor',
+				'incididunt',
+				'ut',
+				'consectetur',
+				'adipiscing',
+				'elit',
+				'sed',
+				'do',
+				'eiusmod',
+				'tempor',
+				'incididunt',
+				'ut',
+			],
 			options = {
 				extraLimit: 10,
 			},
@@ -22,13 +71,13 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 	) => {
 		const [timer, setTimer] = useState(0);
 		const [isStart, setIsStart] = useState(false);
-		const [activeWord, setActiveWord] = useState('');
+		const [activeIndex, setActiveIndex] = useState(0);
 		const [typed, setTyped] = useState('');
 		const [history, setHistory] = useState<string[]>([]);
 
 		const start = () => {
 			setIsStart(true);
-			setActiveWord(words[0] || '');
+			setActiveIndex(0);
 		};
 
 		const stop = () => {
@@ -37,7 +86,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 
 		const restart = () => {
 			setIsStart(false);
-			setActiveWord('');
+			setActiveIndex(0);
 			setTyped('');
 			setHistory([]);
 			setTimer(0);
@@ -60,23 +109,29 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			}
 		}, []);
 
-		const handleNextWord = (nextIndex: number) => {
-			if (!isStart) {
-				return;
-			}
-			setActiveWord(words[nextIndex]);
-			setHistory([...history, typed]);
-			setTyped('');
-		};
+		const handleNextWord = useCallback(
+			(nextIndex: number) => {
+				if (!isStart) {
+					return;
+				}
+				setActiveIndex(nextIndex);
+				setHistory([...history, typed]);
+				setTyped('');
+			},
+			[history, isStart, typed],
+		);
 
-		const handlePrevWord = (prevIndex: number) => {
-			if (!isStart) {
-				return;
-			}
-			setActiveWord(words[prevIndex]);
-			setTyped(history[prevIndex] || '');
-			setHistory(history.splice(0, history.length - 1));
-		};
+		const handlePrevWord = useCallback(
+			(prevIndex: number) => {
+				if (!isStart) {
+					return;
+				}
+				setActiveIndex(prevIndex);
+				setTyped(history[prevIndex] || '');
+				setHistory(history.splice(0, history.length - 1));
+			},
+			[history, isStart, words],
+		);
 
 		const handleKeyDown = useCallback(
 			(e: KeyboardEvent) => {
@@ -85,7 +140,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 				switch (e.code) {
 					case KEYCODES.SPACE:
 						if (typed.length > 0) {
-							const nextWordIndex = words.indexOf(activeWord) + 1;
+							const nextWordIndex = activeIndex + 1;
 							if (nextWordIndex < 0) {
 								stop();
 								return;
@@ -95,7 +150,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 						break;
 					case KEYCODES.BACKSPACE:
 						if (typed.length === 0) {
-							const prevWordIndex = words.indexOf(activeWord) - 1;
+							const prevWordIndex = activeIndex - 1;
 							if (prevWordIndex < 0) {
 								stop();
 								return;
@@ -111,18 +166,18 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 						if (!isStart) {
 							start();
 						}
-						if (typed.length >= activeWord.length + options.extraLimit) return;
+						if (typed.length >= words[activeIndex].length + options.extraLimit)
+							return;
 						setTyped(typed + e.key);
 				}
 			},
 			[
-				activeWord,
+				activeIndex,
 				handleNextWord,
 				handlePrevWord,
 				handleShortcuts,
 				isStart,
 				options.extraLimit,
-				start,
 				typed,
 				words,
 			],
@@ -149,9 +204,9 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 				<div className="text-4xl flex flex-wrap gap-2">
 					{words.map((word, wordIndex) => {
 						const isTypedWord = history[wordIndex];
-						const isActive = word === activeWord;
+						const isActive = wordIndex === activeIndex;
 						const extraChars = isActive
-							? typed.slice(activeWord.length)
+							? typed.slice(word.length)
 							: history[wordIndex]?.slice(word.length) || '';
 						return (
 							<span key={word + wordIndex}>

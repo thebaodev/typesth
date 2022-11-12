@@ -5,11 +5,11 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import { getShortcut, isFunctionKeys } from '~/helpers/keys';
-import { KEYCODES, SHORTCUTS } from '~/constant';
-import { useInterval } from '~/hooks/useInterval';
 import clsx from 'clsx';
 import anime from 'animejs';
+import { KEYCODES, SHORTCUTS } from '~/constant';
+import { useInterval } from '~/hooks/useInterval';
+import { getShortcut, isFunctionKeys } from '~/helpers/keys';
 
 type TypeTesterProps = {
 	words?: string[];

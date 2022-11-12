@@ -1,8 +1,10 @@
 {
   "name": "typesth",
+  "version": "0.0.0-development",
   "private": true,
   "description": "type sth fun everyday",
   "license": "ISC",
+  "main": "server.js",
   "sideEffects": false,
   "scripts": {
     "build": "run-s build:*",
@@ -22,17 +24,6 @@
     "release": "semantic-release",
     "semantic-release": "semantic-release"
   },
-  "eslintIgnore": [
-    "/node_modules",
-    "/build",
-    "/public/build",
-    "/api",
-    "/coverage",
-    ".eslintrc.js",
-    "tailwind.config.js",
-    "server.js",
-    "remix.config.js"
-  ],
   "dependencies": {
     "@headlessui/react": "^1.7.4",
     "@heroicons/react": "^2.0.13",
@@ -84,8 +75,6 @@
   "engines": {
     "node": ">=14"
   },
-  "version": "0.0.0-development",
-  "main": ".eslintrc.js",
   "directories": {
     "test": "test"
   },

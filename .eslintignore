@@ -1,0 +1,14 @@
+node_modules
+
+build
+api
+public
+
+coverage
+
+.eslintrc.js
+.prettierrc.js
+
+server.js
+remix.config.js
+tailwind.config.js

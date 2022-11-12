@@ -1,26 +1,14 @@
 @layer base {
 	@font-face {
-		font-family: 'SpaceGrotesk';
-		font-weight: 300;
-		font-display: swap;
-		src: url(public/fonts/SpaceGrotesk-Light.otf);
-	}
-	@font-face {
-		font-family: 'SpaceGrotesk';
+		font-family: 'SpaceGrotest';
 		font-weight: 400;
 		font-display: swap;
-		src: url(public/fonts/SpaceGrotesk-Regular.otf);
+		src: url(public/fonts/SpaceGrotest.ttf);
 	}
 	@font-face {
-		font-family: 'SpaceGrotesk';
-		font-weight: 500;
+		font-family: 'SpaceMono';
+		font-weight: 400;
 		font-display: swap;
-		src: url(public/fonts/SpaceGrotesk-Medium.otf);
-	}
-	@font-face {
-		font-family: 'SpaceGrotesk';
-		font-weight: 600;
-		font-display: swap;
-		src: url(public/fonts/SpaceGrotesk-Bold.otf);
+		src: url(public/fonts/SpaceMono.ttf);
 	}
 }

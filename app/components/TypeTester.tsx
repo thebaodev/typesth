@@ -224,17 +224,16 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 									<span
 										ref={caretRef}
 										className={clsx(
-											'absolute top-0 left-0 text-3xl text-orange-500 -mr-1 font-bold',
+											'absolute top-0 left-0 flex bg-orange-400 w-1',
 											{
 												'animate-blink': !isFocus,
 											},
 										)}
 										style={{
-											left: typed.length * 21.6667,
+											height: '100%',
+											left: typed.length * 22,
 										}}
-									>
-										|
-									</span>
+									/>
 								)}
 								{word.split('').map((char, charIndex) => {
 									const isTypedChar =

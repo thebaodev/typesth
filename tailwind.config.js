@@ -13,7 +13,8 @@ module.exports = {
 				blink: 'blink 1s linear infinite',
 			},
 			fontFamily: {
-				sans: ['SpaceGrotesk', 'serif'],
+				mono: ['SpaceMono', 'Courier New', 'serif'],
+				sans: ['SpaceGrotest', 'Roboto', 'san-serif'],
 			},
 		},
 	},

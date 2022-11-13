@@ -26,6 +26,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 				'hello',
 				'world',
 				'this',
+				'hello',
 				'is',
 				'a',
 				'test',
@@ -74,7 +75,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 				'ut',
 			],
 			options = {
-				fontSize: 48,
+				fontSize: 56,
 				showLines: 3,
 				extraLimit: 10,
 			},
@@ -87,7 +88,13 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		const [activeIndex, setActiveIndex] = useState(0);
 		const [typed, setTyped] = useState('');
 		const [history, setHistory] = useState<string[]>([]);
+		const [hiddenIndexes, setHiddenIndexes] = useState<number[]>([]);
+		const activeRowIndexRef = useRef<number>(0);
+		const typeViewRef = useRef<HTMLDivElement>(null);
 		const caretRef = useRef<HTMLSpanElement>(null);
+		const caretDirectionRef = useRef('forward');
+		const lineHeight = options.fontSize * 1.25;
+		const viewHeight = lineHeight * options.showLines;
 
 		const start = () => {
 			setIsStart(true);
@@ -139,28 +146,54 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 
 		const handlePrevWord = useCallback(
 			(prevIndex: number) => {
-				if (!isStart) {
+				if (!isStart || hiddenIndexes.includes(prevIndex)) {
 					return;
 				}
 				setActiveIndex(prevIndex);
 				setTyped(history[prevIndex] || '');
 				setHistory(history.splice(0, history.length - 1));
 			},
-			[history, isStart],
+			[hiddenIndexes, history, isStart],
 		);
 
-		const caretDirection = useRef('forward');
+		const removeCompletedRows = useCallback(() => {
+			const typeView = typeViewRef.current;
+			const activeRowIndex = activeRowIndexRef.current;
+			if (!typeView || activeRowIndex === 0) return;
+			const typeViewRect = typeView.getBoundingClientRect();
+			const wordEls = typeView.querySelectorAll('.word');
+			const completedIndexes: number[] = [];
+			Array.from(wordEls).every((wordEl: Element, index) => {
+				const wordRect = wordEl.getBoundingClientRect();
+				const wordRowIndex = (wordRect.top - typeViewRect.top) / lineHeight;
+				if (wordRowIndex > 0) {
+					return false;
+				}
+				completedIndexes.push(index);
+				return true;
+			});
+			setHiddenIndexes([...hiddenIndexes, ...completedIndexes]);
+		}, [hiddenIndexes, lineHeight]);
+
 		const handleCaretPosition = useCallback(() => {
 			const caret = caretRef.current;
-			if (!caret) return;
+			const typeView = typeViewRef.current;
+			if (!caret || !typeView) return;
 			anime({
 				targets: caret,
 				duration: 120,
 				opacity: 1,
-				left: typed.length * 30,
+				left: typed.length * options.fontSize * 0.62, // letter space ratio
 				easing: 'linear',
 			});
-		}, [typed.length]);
+			const caretRect = caret.getBoundingClientRect();
+			const typeViewRect = typeView.getBoundingClientRect();
+			const activeRowIndex = (caretRect.top - typeViewRect.top) / lineHeight;
+			activeRowIndexRef.current = activeRowIndex;
+			if (activeRowIndex > 1) {
+				removeCompletedRows();
+			}
+		}, [typed.length, options.fontSize, lineHeight, removeCompletedRows]);
 
 		useEffect(() => {
 			handleCaretPosition();
@@ -179,7 +212,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 								return;
 							}
 							handleNextWord(nextWordIndex);
-							caretDirection.current = 'forward';
+							caretDirectionRef.current = 'forward';
 						}
 						break;
 					case KEYCODES.BACKSPACE:
@@ -190,7 +223,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 								return;
 							}
 							handlePrevWord(prevWordIndex);
-							caretDirection.current = 'backward';
+							caretDirectionRef.current = 'backward';
 							return;
 						}
 						const newValue = typed.slice(0, -1);
@@ -233,7 +266,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			};
 		}, [attachEventListeners, removeEventListeners]);
 
-		const lineHeight = options?.fontSize * 1.2 + 12; // 12 gap
+		const filteredWords = words?.slice(hiddenIndexes.length, words?.length);
 		return (
 			<div
 				className="w-2/3 flex flex-col flex-wrap items-start justify-center font-mono"
@@ -241,35 +274,37 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			>
 				<div className="text-3xl text-orange-500">{timer}</div>
 				<div
-					className="h-full w-full overflow-hidden text-5xl flex flex-wrap gap-2"
+					ref={typeViewRef}
+					className={clsx(
+						'h-full w-full overflow-hidden text-5xl flex items-center flex-wrap',
+					)}
 					style={{
-						maxHeight: `${lineHeight * options.showLines}px`,
+						maxHeight: `${viewHeight}px`,
+						fontSize: `${options.fontSize}px`,
+						lineHeight: `${lineHeight}px`,
 					}}
 				>
-					{words.map((word, wordIndex) => {
-						const isTypedWord = history[wordIndex];
+					{filteredWords.map((word, index) => {
+						const wordIndex = index + hiddenIndexes.length;
 						const isActive = wordIndex === activeIndex;
+						const isTypedWord = history[wordIndex];
 						const extraChars = isActive
 							? typed.slice(word.length)
 							: history[wordIndex]?.slice(word.length) || '';
 						return (
 							<span
-								className="relative px-1 h-full leading-none"
 								key={word + wordIndex}
-								style={{
-									fontSize: `${options.fontSize}px`,
-									height: `${lineHeight}px`,
-								}}
+								className="word relative px-1 h-full flex items-center"
 							>
 								{isActive && (
 									<span
 										ref={caretRef}
 										className={clsx(
-											'absolute opacity-0 -top-6 h-full flex bg-orange-400 w-1 rounded-lg',
+											'caret absolute opacity-0 top-0 h-full flex bg-orange-400 w-1 rounded-lg',
 											{
 												'animate-blink': !isFocus,
-												'left-0': caretDirection.current === 'forward',
-												'right-0': caretDirection.current === 'backward',
+												'left-0': caretDirectionRef.current === 'forward',
+												'right-0': caretDirectionRef.current === 'backward',
 											},
 										)}
 									/>
@@ -286,11 +321,14 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 									return (
 										<span
 											key={char + charIndex}
-											className={clsx({
-												'text-gray-500': !isTypedChar,
-												'text-green-500': isTypedChar && isCorrect,
-												'text-red-500': isTypedChar && !isCorrect,
-											})}
+											className={clsx(
+												'char transition-all duration-400 ease-in-out',
+												{
+													'text-gray-500': !isTypedChar,
+													'text-green-500': isTypedChar && isCorrect,
+													'text-red-500 bg-red-100 ': isTypedChar && !isCorrect,
+												},
+											)}
 										>
 											{char}
 										</span>

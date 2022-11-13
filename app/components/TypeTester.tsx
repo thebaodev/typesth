@@ -179,11 +179,12 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			const caret = caretRef.current;
 			const typeView = typeViewRef.current;
 			if (!caret || !typeView) return;
+			const letterSpace = options.fontSize * (34 / 56);
 			anime({
 				targets: caret,
-				duration: 120,
+				duration: 110,
 				opacity: 1,
-				left: typed.length * options.fontSize * 0.62, // letter space ratio
+				left: typed.length * letterSpace, // letter space ratio
 				easing: 'linear',
 			});
 			const caretRect = caret.getBoundingClientRect();
@@ -272,11 +273,11 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 				className="w-2/3 flex flex-col flex-wrap items-start justify-center font-mono"
 				ref={ref}
 			>
-				<div className="text-3xl text-orange-500">{timer}</div>
+				<div className="text-3xl text-orange-500 px-2">{timer}</div>
 				<div
 					ref={typeViewRef}
 					className={clsx(
-						'h-full w-full overflow-hidden text-5xl flex items-center flex-wrap',
+						'h-full w-full overflow-hidden px-2 mt-2 text-5xl flex items-center flex-wrap gap-x-4',
 					)}
 					style={{
 						maxHeight: `${viewHeight}px`,
@@ -294,13 +295,13 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 						return (
 							<span
 								key={word + wordIndex}
-								className="word relative px-1 h-full flex items-center"
+								className="word relative h-ful flex items-center"
 							>
 								{isActive && (
 									<span
 										ref={caretRef}
 										className={clsx(
-											'caret absolute opacity-0 top-0 h-full flex bg-orange-400 w-1 rounded-lg',
+											'caret absolute opacity-0 top-0 h-full flex bg-orange-400 w-1 rounded-lg -translate-x-[1px]',
 											{
 												'animate-blink': !isFocus,
 												'left-0': caretDirectionRef.current === 'forward',
@@ -337,7 +338,10 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 								<span>
 									{extraChars &&
 										extraChars.split('').map((char, charIndex) => (
-											<span key={char + charIndex} className="text-red-500">
+											<span
+												key={char + charIndex}
+												className="char text-red-500"
+											>
 												{char}
 											</span>
 										))}

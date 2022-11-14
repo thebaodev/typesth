@@ -270,7 +270,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		const filteredWords = words?.slice(hiddenIndexes.length, words?.length);
 		return (
 			<div
-				className="w-2/3 flex flex-col flex-wrap items-start justify-center font-mono"
+				className="max-w-screen-lg w-full p-6 md:p-8 lg:p-12 flex flex-col flex-wrap items-start justify-center font-mono"
 				ref={ref}
 			>
 				<div className="text-3xl text-orange-500 px-2">{timer}</div>

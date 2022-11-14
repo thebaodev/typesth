@@ -16,6 +16,8 @@ node_modules
 .output
 .vscode
 .idea
+.idea/workspace.xml
+/.idea
 
 /build/
 /public/build

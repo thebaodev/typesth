@@ -92,7 +92,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		const activeRowIndexRef = useRef<number>(0);
 		const typeViewRef = useRef<HTMLDivElement>(null);
 		const caretRef = useRef<HTMLSpanElement>(null);
-		const caretDirectionRef = useRef('forward');
+		const caretDirectionRef = useRef('');
 		const lineHeight = options.fontSize * 1.25;
 		const viewHeight = lineHeight * options.showLines;
 
@@ -184,7 +184,6 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			anime({
 				targets: caret,
 				duration: 100,
-				opacity: 1,
 				left: typed.length * letterSpace, // letter space ratio
 				easing: 'linear',
 			});
@@ -302,7 +301,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 									<span
 										ref={caretRef}
 										className={clsx(
-											'caret absolute opacity-0 top-0 h-full flex bg-orange-400 w-1 rounded-lg -translate-x-[1px]',
+											'caret absolute top-0 h-full flex bg-orange-400 w-1 rounded-lg -translate-x-[1px]',
 											{
 												'animate-blink': !isFocus,
 												'-left-4': caretDirectionRef.current === 'forward',
@@ -327,15 +326,13 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 									return (
 										<span
 											key={char + charIndex}
-											className={clsx(
-												'char transition-all duration-400 ease-in-out',
-												{
-													'text-gray-500': !isTypedChar,
-													'bg-red-200': isSkippedChar,
-													'text-green-500': isTypedChar && isCorrect,
-													'text-red-500': isTypedChar && !isCorrect,
-												},
-											)}
+											className={clsx('char transition-all duration-600 ease', {
+												'text-gray-500': !isTypedChar,
+												'underline underline-offset-8 decoration-orange-200':
+													isSkippedChar,
+												'text-green-500': isTypedChar && isCorrect,
+												'text-red-500': isTypedChar && !isCorrect,
+											})}
 										>
 											{char}
 										</span>

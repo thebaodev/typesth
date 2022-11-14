@@ -7,6 +7,8 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from '@remix-run/react';
+import { useEffect } from 'react';
+import { themeChange } from 'theme-change';
 import stylesheet from 'public/styles/app.css';
 
 export const meta: MetaFunction = () => ({
@@ -17,11 +19,16 @@ export const meta: MetaFunction = () => ({
 
 export const links: LinksFunction = () => [
 	{ rel: 'stylesheet', href: stylesheet },
+	{ type: 'image/png', rel: 'icon', href: '/favicon.png' },
 ];
 
 export default function App() {
+	useEffect(() => {
+		themeChange(false);
+	}, []);
+
 	return (
-		<html lang="en">
+		<html lang="en" data-theme="lofi">
 			<head>
 				<Meta />
 				<Links />

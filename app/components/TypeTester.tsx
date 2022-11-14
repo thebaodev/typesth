@@ -112,6 +112,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			setActiveIndex(0);
 			setTyped('');
 			setHistory([]);
+			setHiddenIndexes([]);
 			setTimer(0);
 		};
 
@@ -182,7 +183,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			const letterSpace = options.fontSize * (34 / 56);
 			anime({
 				targets: caret,
-				duration: 110,
+				duration: 100,
 				opacity: 1,
 				left: typed.length * letterSpace, // letter space ratio
 				easing: 'linear',
@@ -304,15 +305,19 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 											'caret absolute opacity-0 top-0 h-full flex bg-orange-400 w-1 rounded-lg -translate-x-[1px]',
 											{
 												'animate-blink': !isFocus,
-												'left-0': caretDirectionRef.current === 'forward',
-												'right-0': caretDirectionRef.current === 'backward',
+												'-left-4': caretDirectionRef.current === 'forward',
+												'-right-4': caretDirectionRef.current === 'backward',
 											},
 										)}
 									/>
 								)}
 								{word.split('').map((char, charIndex) => {
 									const isTypedChar =
-										isTypedWord || (isActive && typed[charIndex]);
+										isTypedWord || !!(isActive && typed[charIndex]);
+									const isSkippedChar =
+										isTypedChar &&
+										history[wordIndex] &&
+										!history[wordIndex][charIndex];
 									let isCorrect = false;
 									if (isTypedWord) {
 										isCorrect = history[wordIndex][charIndex] === char;
@@ -326,8 +331,9 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 												'char transition-all duration-400 ease-in-out',
 												{
 													'text-gray-500': !isTypedChar,
+													'bg-red-200': isSkippedChar,
 													'text-green-500': isTypedChar && isCorrect,
-													'text-red-500 bg-red-100 ': isTypedChar && !isCorrect,
+													'text-red-500': isTypedChar && !isCorrect,
 												},
 											)}
 										>

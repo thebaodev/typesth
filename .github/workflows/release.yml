@@ -33,9 +33,6 @@ jobs:
       - name: build
         run: npm run build
 
-      - name: release
-        run: npm run release
-
       - name: deploy
         uses: amondnet/vercel-action@v25
         with:

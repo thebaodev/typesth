@@ -273,7 +273,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 				className="max-w-screen-lg w-full p-6 md:p-8 lg:p-12 flex flex-col flex-wrap items-start justify-center font-mono"
 				ref={ref}
 			>
-				<div className="text-3xl text-orange-500 px-2">{timer}</div>
+				<div className="text-3xl text-primary px-2">{timer}</div>
 				<div
 					ref={typeViewRef}
 					className={clsx(
@@ -301,7 +301,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 									<span
 										ref={caretRef}
 										className={clsx(
-											'caret absolute top-0 h-full flex bg-orange-400 w-1 rounded-lg -translate-x-[1px]',
+											'caret absolute top-0 h-full flex bg-accent w-1 rounded-lg -translate-x-[1px]',
 											{
 												'animate-blink': !isFocus,
 												'-left-4': caretDirectionRef.current === 'forward',
@@ -327,11 +327,11 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 										<span
 											key={char + charIndex}
 											className={clsx('char transition-all duration-600 ease', {
-												'text-gray-500': !isTypedChar,
+												'text-base-300': !isTypedChar,
 												'underline underline-offset-8 decoration-orange-200':
 													isSkippedChar,
-												'text-green-500': isTypedChar && isCorrect,
-												'text-red-500': isTypedChar && !isCorrect,
+												'text-success': isTypedChar && isCorrect,
+												'text-error ': isTypedChar && !isCorrect,
 											})}
 										>
 											{char}

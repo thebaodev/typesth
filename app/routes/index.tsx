@@ -17,7 +17,7 @@ const Index = () => (
       <TypeTester />
     </div>
     <footer className="w-full p-2 flex justify-start">
-      <div className="text-left font-sans font-light text-stone-400">
+      <div className="text-left font-sans font-light text-base-content">
         made with love by
         <a
           className="ml-1 hover:text-stone-700 transition-all"

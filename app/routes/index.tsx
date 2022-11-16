@@ -13,7 +13,7 @@ const Index = () => {
 			targets: chars,
 			duration: 400,
       loop: true,
-			translateY: -4,
+			translateY: 2,
 			delay: anime.stagger(100),
 		});
 	};
@@ -22,9 +22,9 @@ const Index = () => {
 		animateHeading();
 	}, []);
 
-	const HEADING_TEXT = 'typesth endlessly...';
+	const HEADING_TEXT = 'type something endlessly...';
 	return (
-		<main className="flex justify-center items-center h-screen w-screen flex-col">
+		<main className="flex justify-center items-center h-screen w-screen flex-col bg-base-100">
 			<header className="fixed top-0 left-0 flex w-full p-4 justify-between items-center">
 				<a href="/" className="flex items-end gap-2">
 					<img
@@ -35,7 +35,7 @@ const Index = () => {
 				</a>
         <h1
           ref={headingRef}
-          className="font-sans text-md lg:text-md text-base-300"
+          className="font-sans ml-auto mr-2 text-md lg:text-sm text-base-400"
         >
           {HEADING_TEXT.split('').map((char, index) => {
             return (
@@ -51,7 +51,6 @@ const Index = () => {
         <ThemeSwitcher />
 			</header>
 			<div className="container flex-1 flex flex-col justify-center items-center">
-
 				<TypeTester />
 			</div>
 			<footer className="w-full p-2 flex justify-center">

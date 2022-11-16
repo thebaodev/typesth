@@ -30,6 +30,7 @@ export default function App() {
 	return (
 		<html lang="en" data-theme="lofi">
 			<head>
+        <title>typesth</title>
 				<Meta />
 				<Links />
 			</head>

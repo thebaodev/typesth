@@ -4,7 +4,7 @@ import { BeakerIcon } from '@heroicons/react/24/outline';
 
 const ThemeSwitcher = () => {
 	return (
-		<div className="fixed top-2 right-2 dropdown dropdown-end">
+		<div className="dropdown dropdown-end">
       <label
         tabIndex={0}
         className="btn btn-ghost rounded-btn flex items-center px-2 rounded-sm"

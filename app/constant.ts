@@ -44,26 +44,6 @@ export const THEMES = [
 		value: 'synthwave',
 	},
 	{
-		name: 'retro',
-		value: 'retro',
-	},
-	{
-		name: 'cyberpunk',
-		value: 'cyberpunk',
-	},
-	{
-		name: 'valentine',
-		value: 'valentine',
-	},
-	{
-		name: 'halloween',
-		value: 'halloween',
-	},
-	{
-		name: 'garden',
-		value: 'garden',
-	},
-	{
 		name: 'forest',
 		value: 'forest',
 	},
@@ -92,10 +72,7 @@ export const THEMES = [
 		name: 'dracula',
 		value: 'dracula',
 	},
-	{
-		name: 'cmyk',
-		value: 'cmyk',
-	},
+
 	{
 		name: 'autumn',
 		value: 'autumn',
@@ -103,14 +80,6 @@ export const THEMES = [
 	{
 		name: 'business',
 		value: 'business',
-	},
-	{
-		name: 'acid',
-		value: 'acid',
-	},
-	{
-		name: 'lemonade',
-		value: 'lemonade',
 	},
 	{
 		name: 'night',

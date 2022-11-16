@@ -28,8 +28,9 @@ export default function App() {
 	}, []);
 
 	return (
-		<html lang="en" data-theme="lofi">
+		<html lang="en" data-theme="dracula">
 			<head>
+        <title>typesth</title>
 				<Meta />
 				<Links />
 			</head>

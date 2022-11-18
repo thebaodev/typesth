@@ -12,21 +12,31 @@ import { useInterval } from '~/hooks/useInterval';
 import { getShortcut, isFunctionKeys } from '~/helpers/keys';
 
 type TypeTesterProps = {
+	className?: string;
 	words?: string[];
 	options?: {
 		fontSize: number;
 		showLines: number;
 		extraLimit: number;
 	};
+	callbacks?: {
+		onStarted?: () => void;
+    onStopped?: () => void;
+	};
 };
 const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 	(
 		{
+			className = '',
 			words = ['right', 'now', 'right', 'down', 'here', 'on', 'earth'],
 			options = {
 				fontSize: 56,
 				showLines: 3,
 				extraLimit: 10,
+			},
+			callbacks = {
+				onStarted: () => {},
+        onStopped: () => {},
 			},
 		}: TypeTesterProps,
 		ref,
@@ -49,11 +59,17 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			setIsStart(true);
 			setIsFocus(true);
 			setActiveIndex(0);
+			if (callbacks?.onStarted) {
+				callbacks.onStarted();
+			}
 		};
 
 		const stop = () => {
 			setIsStart(false);
 			setIsFocus(false);
+      if (callbacks?.onStopped) {
+        callbacks.onStopped();
+      }
 		};
 
 		const restart = () => {
@@ -146,7 +162,13 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			if (activeRowIndex > 1) {
 				removeCompletedRows();
 			}
-		}, [options.fontSize, options.showLines, typed.length, lineHeight, removeCompletedRows]);
+		}, [
+			options.fontSize,
+			options.showLines,
+			typed.length,
+			lineHeight,
+			removeCompletedRows,
+		]);
 
 		useEffect(() => {
 			handleCaretPosition();
@@ -222,14 +244,14 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		const filteredWords = words?.slice(hiddenIndexes.length, words?.length);
 		return (
 			<div
-				className="max-w-screen-lg w-full p-6 md:p-8 lg:p-12 flex flex-col items-start justify-center font-mono"
+				className={clsx('grid grid-rows-[auto_1fr] font-mono', className)}
 				ref={ref}
 			>
 				<div className="text-3xl text-primary px-2 text-accent">{timer}</div>
 				<div
 					ref={typeViewRef}
 					className={clsx(
-						'h-full w-full overflow-hidden px-2 mt-2 text-5xl flex items-center flex-wrap gap-x-4',
+						'flex items-center flex-wrap gap-x-4 overflow-hidden px-2 mt-2 text-5xl',
 					)}
 					style={{
 						maxHeight: `${viewHeight}px`,
@@ -264,7 +286,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 								)}
 								{word.split('').map((char, charIndex) => {
 									const isTypedChar =
-                    isTypedWord || !!(isActive && typed[charIndex]);
+										isTypedWord || !!(isActive && typed[charIndex]);
 									const isSkippedChar =
 										isTypedChar &&
 										history[wordIndex] &&

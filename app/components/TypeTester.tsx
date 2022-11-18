@@ -22,69 +22,7 @@ type TypeTesterProps = {
 const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 	(
 		{
-			words = [
-				'infuse',
-				'your',
-				'life',
-				'with',
-				'action',
-				"don't",
-				'wait',
-				'for',
-				'it',
-				'to',
-				'happen',
-				'make',
-				'it',
-				'happen',
-				'make',
-				'your',
-				'own',
-				'future',
-				'make',
-				'your',
-				'own',
-				'hope',
-				'make',
-				'your',
-				'own',
-				'love',
-				'and',
-				'whatever',
-				'your',
-				'beliefs',
-				'honor',
-				'your',
-				'creator',
-				'not',
-				'passively',
-				'waiting',
-				'for',
-				'grace',
-				'to',
-				'come',
-				'down',
-				'from',
-				'upon',
-				'high',
-				'but',
-				'by',
-				'doing',
-				'what',
-				'you',
-				'can',
-				'to',
-				'make',
-				'grace',
-				'happen',
-				'yourself',
-				'right',
-				'now',
-				'right',
-				'down',
-				'here',
-				'on earth',
-			],
+			words = ['right', 'now', 'right', 'down', 'here', 'on', 'earth'],
 			options = {
 				fontSize: 56,
 				showLines: 3,
@@ -200,12 +138,15 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			});
 			const caretRect = caret.getBoundingClientRect();
 			const typeViewRect = typeView.getBoundingClientRect();
+			const shouldHidePreviousLine =
+				typeViewRect.height < lineHeight * options.showLines;
+			if (!shouldHidePreviousLine) return;
 			const activeRowIndex = (caretRect.top - typeViewRect.top) / lineHeight;
 			activeRowIndexRef.current = activeRowIndex;
 			if (activeRowIndex > 1) {
 				removeCompletedRows();
 			}
-		}, [typed.length, options.fontSize, lineHeight, removeCompletedRows]);
+		}, [options.fontSize, options.showLines, typed.length, lineHeight, removeCompletedRows]);
 
 		useEffect(() => {
 			handleCaretPosition();
@@ -281,7 +222,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		const filteredWords = words?.slice(hiddenIndexes.length, words?.length);
 		return (
 			<div
-				className="max-w-screen-lg w-full p-6 md:p-8 lg:p-12 flex flex-col flex-wrap items-start justify-center font-mono"
+				className="max-w-screen-lg w-full p-6 md:p-8 lg:p-12 flex flex-col items-start justify-center font-mono"
 				ref={ref}
 			>
 				<div className="text-3xl text-primary px-2 text-accent">{timer}</div>

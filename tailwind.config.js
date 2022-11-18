@@ -10,7 +10,7 @@ module.exports = {
 				},
 			},
 			animation: {
-				blink: 'blink 1s linear infinite',
+				blink: 'blink 1.5s linear infinite',
 			},
 			fontFamily: {
 				mono: ['SpaceMono', 'Courier New', 'serif'],

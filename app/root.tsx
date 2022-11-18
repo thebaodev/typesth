@@ -7,7 +7,7 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from '@remix-run/react';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { themeChange } from 'theme-change';
 import stylesheet from 'public/styles/app.css';
 
@@ -30,7 +30,7 @@ export default function App() {
 	return (
 		<html lang="en" data-theme="dracula">
 			<head>
-        <title>typesth</title>
+				<title>typesth</title>
 				<Meta />
 				<Links />
 			</head>

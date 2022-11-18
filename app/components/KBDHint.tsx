@@ -12,18 +12,18 @@ const KBDHint = forwardRef<HTMLDivElement, KBDHintProps>(
 			<section className={clsx('grid justify-center items-center h-12', className)}>
 				<Transition
 					show={isActive}
-					enter="transition-opacity duration-400"
+					enter="transition-opacity ease-linear  duration-400"
 					enterFrom="opacity-0"
 					enterTo="opacity-100"
-					leave="transition-opacity duration-400"
+					leave="transition-opacity ease-linear  duration-400"
 					leaveFrom="opacity-100"
 					leaveTo="opacity-0"
 				>
-					<div className="grid grid-cols-2 items-center">
+					<div className="grid grid-cols-[1fr_auto] items-center">
 						<figure>
 							<kbd className="kbd">ctrl</kbd> + <kbd className="kbd">enter</kbd>
 						</figure>
-						<label className="text-lg font-light">restart</label>
+						<label className="text-lg font-light ml-4">restart</label>
 					</div>
 				</Transition>
 			</section>

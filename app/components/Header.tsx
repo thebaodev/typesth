@@ -31,7 +31,10 @@ const Header = forwardRef<HTMLDivElement, HeaderProps>(
 
 		return (
 			<header
-				className={clsx('grid grid-cols-[auto_1fr] justify-between p-4 h-12', className)}
+				className={clsx(
+					'grid grid-cols-[auto_1fr] justify-between p-4 h-12',
+					className,
+				)}
 			>
 				<a href="/" className="btn btn-ghost rounded-md">
 					<img
@@ -73,4 +76,5 @@ const Header = forwardRef<HTMLDivElement, HeaderProps>(
 	},
 );
 
+Header.displayName = 'Header';
 export default Header;

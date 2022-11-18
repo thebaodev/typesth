@@ -74,14 +74,14 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			}
 		}, [callbacks]);
 
-		const restart = () => {
+		const restart = useCallback(() => {
 			setActiveIndex(0);
 			setTyped('');
 			setHistory([]);
 			setHiddenIndexes([]);
 			setTimer(0);
 			stop();
-		};
+		}, [stop]);
 
 		useEffect(() => {
 			setIsReady(true);
@@ -102,7 +102,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 					restart();
 					break;
 			}
-		}, []);
+		}, [restart]);
 
 		const handleNextWord = useCallback(
 			(nextIndex: number) => {
@@ -216,13 +216,13 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 						}
 						if (typed.length >= words[activeIndex]?.length + options.extraLimit)
 							return;
-            const newTyped = typed + e.key;
-            setTyped(newTyped);
-            const lastWord = words[words.length - 1];
-            const isLastWord = activeIndex === words.length - 1;
-            if (isLastWord && newTyped === lastWord) {
-              stop();
-            }
+						const newTyped = typed + e.key;
+						setTyped(newTyped);
+						const lastWord = words[words.length - 1];
+						const isLastWord = activeIndex === words.length - 1;
+						if (isLastWord && newTyped === lastWord) {
+							stop();
+						}
 				}
 			},
 			[

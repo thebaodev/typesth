@@ -7,10 +7,12 @@ import React, {
 } from 'react';
 import clsx from 'clsx';
 import anime from 'animejs';
-import { KEYCODES, SHORTCUTS } from '~/constant';
+import { KEYCODES, SHORTCUTS, TIMER_ENDLESS, TIMER_OPTIONS } from '~/constant';
 import { useInterval } from '~/hooks/useInterval';
 import { getShortcut, isFunctionKeys } from '~/helpers/keys';
 import { Transition } from '@headlessui/react';
+import usePrev from '~/hooks/usePrev';
+import defaultWords from '~/data/default-words.json';
 
 type TypeTesterProps = {
 	isActive: boolean;
@@ -18,15 +20,14 @@ type TypeTesterProps = {
 	words?: string[];
 	options?: {
 		fontSize: number;
+		timer: number;
 		showLines: number;
 		extraLimit: number;
 	};
 	callbacks?: {
-		onStarted?: () => void;
-		onStopped?: (words: string[], typed: string[], time: number) => void;
-		onFocus: () => void;
-		onBlur: () => void;
-		onRestart?: () => void;
+		onStarted: () => void;
+		onFinished: (words: string[], typed: string[], time: number) => void;
+		onRestart: () => void;
 	};
 };
 const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
@@ -34,23 +35,22 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		{
 			isActive = true,
 			className = '',
-			words = ['type', 'something', 'endlessly', '...'],
+			words = defaultWords.data,
 			options = {
 				fontSize: 56,
+				timer: TIMER_OPTIONS[0].value,
 				showLines: 3,
 				extraLimit: 10,
 			},
 			callbacks = {
 				onStarted: () => {},
-				onStopped: () => {},
-				onFocus: () => {},
-				onBlur: () => {},
+				onFinished: () => {},
 				onRestart: () => {},
 			},
 		}: TypeTesterProps,
 		ref,
 	) => {
-		const [timer, setTimer] = useState(0);
+		const [timer, setTimer] = useState(options.timer);
 		const [isStart, setIsStart] = useState(false);
 		const [isFocus, setIsFocus] = useState(false);
 		const [activeIndex, setActiveIndex] = useState(0);
@@ -76,11 +76,12 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		const stop = useCallback(() => {
 			setIsStart(false);
 			setIsFocus(false);
-			if (callbacks?.onStopped) {
+			if (callbacks?.onFinished) {
 				const newHistory = [...history, typed];
-				callbacks.onStopped(words, newHistory, timer);
+				const time = options.timer === TIMER_ENDLESS ? timer : options.timer;
+				callbacks.onFinished(words, newHistory, time);
 			}
-		}, [callbacks, history, timer, typed, words]);
+		}, [callbacks, history, options.timer, timer, typed, words]);
 
 		const restart = useCallback(() => {
 			setIsStart(false);
@@ -88,36 +89,39 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			setTyped('');
 			setHistory([]);
 			setHiddenIndexes([]);
-			setTimer(0);
+			setTimer(options.timer);
 			if (callbacks?.onRestart) {
 				callbacks.onRestart();
 			}
-		}, [callbacks]);
+		}, [callbacks, options.timer]);
 
-		const prevTypedRef = useRef(typed);
-		const handleBlur = () => {
-			if (!isFocus) {
-				return;
+		const prevTimerOption = usePrev(options.timer);
+		useEffect(() => {
+			if (prevTimerOption !== options.timer) {
+				setTimer(options.timer);
+				restart();
 			}
-			const threshold = 2;
-			const prevTyped = prevTypedRef.current;
-			if (isFocus && timer % threshold === 0 && typed === prevTyped) {
-				setIsFocus(false);
-				if (callbacks?.onBlur) callbacks.onBlur();
-			}
-			prevTypedRef.current = typed;
-		};
+		}, [options, prevTimerOption, restart]);
 
 		useInterval(
 			() => {
-				setTimer(timer + 1);
-				handleBlur();
+				if (options.timer === TIMER_ENDLESS) {
+					setTimer(timer + 1);
+				} else {
+					if (timer === 0) {
+						stop();
+						return;
+					}
+					setTimer(timer - 1);
+				}
 			},
 			isStart ? 1000 : null,
 		);
 
 		const handleShortcuts = useCallback(
 			(e: KeyboardEvent) => {
+				e.preventDefault();
+				e.stopPropagation();
 				const shortcut = getShortcut(e);
 				if (!shortcut) return;
 				switch (shortcut) {
@@ -213,7 +217,6 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		const handleKeyDown = useCallback(
 			(e: KeyboardEvent) => {
 				e.preventDefault();
-				if (callbacks?.onFocus) callbacks.onFocus();
 				handleShortcuts(e);
 				const lastWord = words[words.length - 1];
 				const isLastWord = activeIndex === words.length - 1;
@@ -259,7 +262,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 						}
 				}
 			},
-			[activeIndex, callbacks, handleNextWord, handlePrevWord, handleShortcuts, isStart, options.extraLimit, start, stop, typed, words],
+			[activeIndex, handleNextWord, handlePrevWord, handleShortcuts, isStart, options.extraLimit, start, stop, typed, words],
 		);
 
 		const attachEventListeners = useCallback(() => {
@@ -280,7 +283,10 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		const filteredWords = words?.slice(hiddenIndexes.length, words?.length);
 		return (
 			<div
-				className={clsx('grid grid-rows-[auto_1fr] font-mono', className)}
+				className={clsx(
+					'grid grid-rows-[auto_1fr] font-mono h-full mt-24 md:h-auto md:mt-auto',
+					className,
+				)}
 				ref={ref}
 			>
 				<Transition

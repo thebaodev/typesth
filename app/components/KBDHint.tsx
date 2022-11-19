@@ -4,12 +4,12 @@ import clsx from 'clsx';
 
 type KBDHintProps = {
 	className?: string;
-	isActive?: boolean;
+	isShow?: boolean;
 	isShowStop?: boolean;
 };
 const KBDHint = forwardRef<HTMLDivElement, KBDHintProps>(
 	(
-		{ className = '', isActive = true, isShowStop = true }: KBDHintProps,
+		{ className = '', isShow = true, isShowStop = true }: KBDHintProps,
 		ref,
 	) => {
 		return (
@@ -17,7 +17,7 @@ const KBDHint = forwardRef<HTMLDivElement, KBDHintProps>(
 				className={clsx('grid justify-center items-center h-24', className)}
 			>
 				<Transition
-					show={isActive}
+					show={isShow}
 					enter="transition-opacity ease-linear  duration-400"
 					enterFrom="opacity-0"
 					enterTo="opacity-100"

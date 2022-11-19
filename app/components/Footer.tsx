@@ -10,9 +10,10 @@ type FooterProps = {
 const Footer = forwardRef<HTMLDivElement, FooterProps>(
 	({ className = '', isShow = true }: FooterProps, ref) => {
 		return (
-			<footer className={clsx('w-full p-4 opacity-40 h-12', className)}>
+			<footer className={clsx('w-full p-4 opacity-40 h-12 ', className)}>
 				<Transition
 					show={isShow}
+          className="px-4"
 					enter="transition-opacity ease-linear  duration-400"
 					enterFrom="opacity-0"
 					enterTo="opacity-100"

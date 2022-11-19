@@ -1,71 +1,72 @@
 import TypeTester from '~/components/TypeTester';
-import React, { useEffect, useRef } from 'react';
-import ThemeSwitcher from '~/components/ThemeSwitcher';
-import logo from '../assets/images/logo.png';
-import anime from 'animejs';
-import clsx from 'clsx';
+import React, { useEffect, useState } from 'react';
+import KBDHint from '~/components/KBDHint';
+import Header from '~/components/Header';
+import Footer from '~/components/Footer';
+import TestResult from '~/components/TestResult';
+
 const Index = () => {
-	const headingRef = useRef<HTMLHeadingElement>(null);
-	const animateHeading = () => {
-		const heading = headingRef.current;
-		const chars = heading?.childNodes;
-		anime({
-			targets: chars,
-			duration: 400,
-      loop: true,
-			translateY: 2,
-			delay: anime.stagger(100),
-		});
-	};
+	const [isReady, setIsReady] = useState(false);
+	const [isTesting, setIsTesting] = useState(false);
+	const [isTested, setIsTested] = useState(false);
+	const [testData, setTestData] = useState<
+		| {
+				words: string[];
+				typed: string[];
+				time: number;
+		  }
+		| undefined
+	>(undefined);
 
 	useEffect(() => {
-		animateHeading();
+		setIsReady(true);
 	}, []);
 
-	const HEADING_TEXT = 'type something endlessly...';
+	const handleStarted = () => {
+		setIsTesting(true);
+	};
+
+	const handleStopped = (words: string[], typed: string[], time: number) => {
+		setIsTesting(false);
+		setIsTested(true);
+		setTestData({ words, typed, time });
+	};
+
+	const handleRestart = () => {
+		setIsTesting(false);
+		setIsTested(false);
+		setTestData(undefined);
+  };
+
 	return (
-		<main className="flex justify-center items-center h-screen w-screen flex-col bg-base-100">
-			<header className="fixed top-0 left-0 flex w-full p-4 justify-between items-center">
-				<a href="/" className="flex items-end gap-2">
-					<img
-						className="w-6 md:w-8"
-						src={logo}
-						alt="type something endlessly"
-					/>
-				</a>
-        <h1
-          ref={headingRef}
-          className="font-sans ml-auto mr-2 text-md lg:text-sm text-base-400"
-        >
-          {HEADING_TEXT.split('').map((char, index) => {
-            return (
-              <span
-                className={clsx('inline-flex', { 'ml-1': !char.trim() })}
-                key={index}
-              >
-								{char}
-							</span>
-            );
-          })}
-        </h1>
-        <ThemeSwitcher />
-			</header>
-			<div className="container flex-1 flex flex-col justify-center items-center">
-				<TypeTester />
-			</div>
-			<footer className="w-full p-2 flex justify-center">
-				<div className="text-sm font-sans font-light text-base-content">
-					made with love by
-					<a
-						className="ml-1  hover:underline transition-all"
-						href="https://thebao.dev"
-						target="_blank"
-						rel="noreferrer"
-					>
-						bao
-					</a>
-				</div>
-			</footer>
+		<main className="grid grid-rows-[auto_6fr_1fr_auto] grid-cols-[1fr] h-screen w-screen items-center justify-center bg-base-100">
+			<Header isShowMenu={!isTesting} />
+			{isTested ? (
+				<TestResult
+					isActive={!!testData}
+					data={testData}
+					className="max-w-screen-xl w-full m-auto p-2 md:p-4 lg:p-5"
+					callbacks={{
+						onRestart: handleRestart,
+					}}
+				/>
+			) : (
+				<TypeTester
+					isActive={isReady}
+					className="max-w-screen-lg w-full m-auto p-6 md:p-8 lg:p-12"
+					callbacks={{
+						onStarted: handleStarted,
+						onStopped: handleStopped,
+            onRestart: handleRestart,
+					}}
+				/>
+			)}
+			<KBDHint
+				isActive={isTesting || isTested}
+				isShowStop={!isTested}
+				className="text-center opacity-40 self-start"
+			/>
+			<Footer isShow={!isTesting} />
 		</main>
 	);
 };

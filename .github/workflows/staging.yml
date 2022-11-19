@@ -1,11 +1,11 @@
-name: release
+name: staging
 
 on:
   release:
     types:
       - published
   push:
-    branches: [main]
+    branches: [staging]
 
 jobs:
   build:
@@ -42,4 +42,4 @@ jobs:
           vercel-args: '--scope=thebaodev'
           scope: ${{ secrets.VERCEL_ORG_ID }}
           alias-domains: |
-            typesth.com
+            typesth.vercel.app

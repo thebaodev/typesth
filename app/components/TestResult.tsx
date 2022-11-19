@@ -33,11 +33,6 @@ const TestResult = forwardRef<HTMLDivElement, TestResultProps>(
 		ref,
 	) => {
 		const [showCPM, setShowCPM] = useState(false);
-		const { words, typed, time } = data;
-		console.log({ words, typed, time });
-		const charTyped = (data.typed.join('') || '').length;
-		const cpm = Math.round((charTyped / data.time) * 60);
-		const wpm = Math.round((charTyped / 5 / data?.time) * 60);
 
 		const toggleCPM = () => {
 			setShowCPM(!showCPM);
@@ -76,6 +71,37 @@ const TestResult = forwardRef<HTMLDivElement, TestResultProps>(
 			};
 		}, [attachEventListeners, removeEventListeners]);
 
+		const calculateAccuracy = useCallback(() => {
+			const { words, typed } = data;
+			let errors = 0;
+			for (let i = 0; i < typed.length; i++) {
+				if (!words[i]) {
+					errors++;
+					return;
+				}
+				if (typed[i] !== words[i]) {
+					for (let j = 0; j < typed[i].length; j++) {
+						if (typed[i][j] !== words[i][j]) {
+							errors++;
+						}
+					}
+				}
+			}
+			const typedString = typed.join(' ');
+			let correctCharacters = typedString.length - errors;
+			return Math.floor((correctCharacters / typedString.length) * 100) / 100;
+		}, [data]);
+
+		const calculate = useCallback(() => {
+			const { typed, time } = data;
+			const typedString = typed.join(' ');
+			const cpm = Math.round((typedString.length / data.time) * 60);
+			const wpm = Math.round((typedString.length / 5 / data?.time) * 60);
+			const accuracy = calculateAccuracy() || 0;
+			return { cpm, wpm, accuracy, time };
+		}, [calculateAccuracy, data]);
+
+		const { cpm, wpm, accuracy, time } = calculate();
 		return (
 			<Transition
 				show={isActive}
@@ -93,11 +119,11 @@ const TestResult = forwardRef<HTMLDivElement, TestResultProps>(
 								accuracy
 							</div>
 							<div className="stat-value text-2xl md:text-3xl lg:text-5xl mb-4">
-								89%
+								{accuracy * 100}%
 							</div>
-							<div className="stat-desc text-md md:text-lg lg:text-xl">
-								your acc ↗︎ 40 (2%)
-							</div>
+							{/*<div className="stat-desc text-md md:text-lg lg:text-xl">*/}
+							{/*	your acc ↗︎ 40 (2%)*/}
+							{/*</div>*/}
 						</div>
 						<div className="stat border-l md:border-l-0" onClick={toggleCPM}>
 							<div className="stat-title mb-4 text-3xl md:text-4xl lg:text-6xl">
@@ -106,20 +132,20 @@ const TestResult = forwardRef<HTMLDivElement, TestResultProps>(
 							<div className="stat-value text-2xl md:text-3xl lg:text-5xl mb-4">
 								{showCPM ? cpm : wpm}
 							</div>
-							<div className="stat-desc text-md md:text-lg lg:text-xl">
-								your speed ↗︎ 40 (2%)
-							</div>
+							{/*<div className="stat-desc text-md md:text-lg lg:text-xl">*/}
+							{/*	your speed ↗︎ 40 (2%)*/}
+							{/*</div>*/}
 						</div>
 						<div className="stat">
 							<div className="stat-title mb-4 text-3xl md:text-4xl lg:text-6xl">
 								you typed
 							</div>
 							<div className="stat-value text-2xl md:text-3xl lg:text-5xl mb-4">
-								45s
+								{time}s
 							</div>
-							<div className="stat-desc text-md md:text-lg lg:text-xl">
-								great job!
-							</div>
+							{/*<div className="stat-desc text-md md:text-lg lg:text-xl">*/}
+							{/*	keep it going!*/}
+							{/*</div>*/}
 						</div>
 					</div>
 				</div>

@@ -11,6 +11,7 @@ import { KEYCODES, SHORTCUTS } from '~/constant';
 import { useInterval } from '~/hooks/useInterval';
 import { getShortcut, isFunctionKeys } from '~/helpers/keys';
 import { Transition } from '@headlessui/react';
+import defaultWords from '~/data/default-words.json';
 
 type TypeTesterProps = {
 	isActive: boolean;
@@ -32,7 +33,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		{
 			isActive = true,
 			className = '',
-			words = ['right', 'now', 'right', 'down', 'here', 'on', 'earth'],
+			words = defaultWords.data,
 			options = {
 				fontSize: 56,
 				showLines: 3,
@@ -73,9 +74,10 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			setIsStart(false);
 			setIsFocus(false);
 			if (callbacks?.onStopped) {
-				callbacks.onStopped(words, history, timer);
+				const newHistory = [...history, typed];
+				callbacks.onStopped(words, newHistory, timer);
 			}
-		}, [callbacks, history, timer, words]);
+		}, [callbacks, history, timer, typed, words]);
 
 		const restart = useCallback(() => {
 			setIsStart(false);
@@ -171,7 +173,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			const caretRect = caret.getBoundingClientRect();
 			const typeViewRect = typeView.getBoundingClientRect();
 			const shouldHidePreviousLine =
-				typeViewRect.height < lineHeight * options.showLines;
+				typeViewRect.height >= lineHeight * options.showLines;
 			if (!shouldHidePreviousLine) return;
 			const activeRowIndex = (caretRect.top - typeViewRect.top) / lineHeight;
 			activeRowIndexRef.current = activeRowIndex;

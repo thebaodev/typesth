@@ -15,7 +15,7 @@ const ThemeSwitcher = () => {
 
 	return (
 		<button
-			className="btn btn-ghost flex items-center rounded-md"
+			className="btn btn-ghost flex items-center rounded-lg"
 			onClick={randomTheme}
 		>
 			<span className="flex items-end">

@@ -2,7 +2,8 @@ import React, { forwardRef, useCallback, useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { Transition } from '@headlessui/react';
 import { getShortcut } from '~/helpers/keys';
-import { SHORTCUTS } from '~/constant';
+import { SHORTCUTS, TIMER_15, TIMER_ENDLESS } from '~/constant';
+import { plural } from '~/helpers/plural';
 
 type TestResultProps = {
 	isActive?: boolean;
@@ -11,6 +12,9 @@ type TestResultProps = {
 		words: string[];
 		typed: string[];
 		time: number;
+	};
+	options?: {
+		timer: number;
 	};
 	callbacks?: {
 		onRestart?: () => void;
@@ -26,6 +30,7 @@ const TestResult = forwardRef<HTMLDivElement, TestResultProps>(
 				typed: [],
 				time: 30,
 			},
+			options = { timer: TIMER_15 },
 			callbacks = {
 				onRestart: () => {},
 			},
@@ -102,6 +107,7 @@ const TestResult = forwardRef<HTMLDivElement, TestResultProps>(
 		}, [calculateAccuracy, data]);
 
 		const { cpm, wpm, accuracy, time } = calculate();
+		const typedWordsCount = data.typed.length;
 		return (
 			<Transition
 				show={isActive}
@@ -115,37 +121,31 @@ const TestResult = forwardRef<HTMLDivElement, TestResultProps>(
 				<div ref={ref} className={clsx('p-1 text-center', className)}>
 					<div className="stats grid-cols-1 grid-rows-3 md:grid-cols-3 md:grid-rows-1">
 						<div className="stat">
-							<div className="stat-title mb-4 text-2xl md:text-3xl lg:text-6xl">
+							<div className="stat-title mb-4 text-2xl md:text-3xl lg:text-4xl">
 								accuracy
 							</div>
 							<div className="stat-value text-2xl md:text-3xl lg:text-5xl mb-4">
 								{accuracy * 100}%
 							</div>
-							{/*<div className="stat-desc text-md md:text-lg lg:text-xl">*/}
-							{/*	your acc ↗︎ 40 (2%)*/}
-							{/*</div>*/}
 						</div>
-						<div className="stat border-l md:border-l-0" onClick={toggleCPM}>
-							<div className="stat-title mb-4 text-3xl md:text-4xl lg:text-6xl">
+						<div className="stat" onClick={toggleCPM}>
+							<div className="stat-title mb-4 text-2xl md:text-3xl lg:text-4xl">
 								{showCPM ? 'cpm' : 'wpm'}
 							</div>
 							<div className="stat-value text-2xl md:text-3xl lg:text-5xl mb-4">
 								{showCPM ? cpm : wpm}
 							</div>
-							{/*<div className="stat-desc text-md md:text-lg lg:text-xl">*/}
-							{/*	your speed ↗︎ 40 (2%)*/}
-							{/*</div>*/}
 						</div>
 						<div className="stat">
-							<div className="stat-title mb-4 text-3xl md:text-4xl lg:text-6xl">
+							<div className="stat-title mb-4 text-2xl md:text-3xl lg:text-4xl">
 								you typed
 							</div>
-							<div className="stat-value text-2xl md:text-3xl lg:text-5xl mb-4">
-								{time}s
+							<div className="stat-value flex flex-col text-2xl md:text-3xl lg:text-5xl mb-4">
+								{options.timer === TIMER_ENDLESS && <span>{time}s</span>}
+								<span>
+									{typedWordsCount} {plural('word', typedWordsCount)}
+								</span>
 							</div>
-							{/*<div className="stat-desc text-md md:text-lg lg:text-xl">*/}
-							{/*	keep it going!*/}
-							{/*</div>*/}
 						</div>
 					</div>
 				</div>

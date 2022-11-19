@@ -11,7 +11,6 @@ import { KEYCODES, SHORTCUTS } from '~/constant';
 import { useInterval } from '~/hooks/useInterval';
 import { getShortcut, isFunctionKeys } from '~/helpers/keys';
 import { Transition } from '@headlessui/react';
-import defaultWords from '~/data/default-words.json';
 
 type TypeTesterProps = {
 	isActive: boolean;
@@ -25,6 +24,8 @@ type TypeTesterProps = {
 	callbacks?: {
 		onStarted?: () => void;
 		onStopped?: (words: string[], typed: string[], time: number) => void;
+		onFocus: () => void;
+		onBlur: () => void;
 		onRestart?: () => void;
 	};
 };
@@ -33,7 +34,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		{
 			isActive = true,
 			className = '',
-			words = defaultWords.data,
+			words = ['type', 'something', 'endlessly', '...'],
 			options = {
 				fontSize: 56,
 				showLines: 3,
@@ -42,6 +43,8 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			callbacks = {
 				onStarted: () => {},
 				onStopped: () => {},
+				onFocus: () => {},
+				onBlur: () => {},
 				onRestart: () => {},
 			},
 		}: TypeTesterProps,
@@ -91,9 +94,24 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			}
 		}, [callbacks]);
 
+		const prevTypedRef = useRef(typed);
+		const handleBlur = () => {
+			if (!isFocus) {
+				return;
+			}
+			const threshold = 2;
+			const prevTyped = prevTypedRef.current;
+			if (isFocus && timer % threshold === 0 && typed === prevTyped) {
+				setIsFocus(false);
+				if (callbacks?.onBlur) callbacks.onBlur();
+			}
+			prevTypedRef.current = typed;
+		};
+
 		useInterval(
 			() => {
 				setTimer(timer + 1);
+				handleBlur();
 			},
 			isStart ? 1000 : null,
 		);
@@ -195,6 +213,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		const handleKeyDown = useCallback(
 			(e: KeyboardEvent) => {
 				e.preventDefault();
+				if (callbacks?.onFocus) callbacks.onFocus();
 				handleShortcuts(e);
 				const lastWord = words[words.length - 1];
 				const isLastWord = activeIndex === words.length - 1;
@@ -240,18 +259,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 						}
 				}
 			},
-			[
-				activeIndex,
-				handleNextWord,
-				handlePrevWord,
-				handleShortcuts,
-				isStart,
-				options.extraLimit,
-				start,
-				stop,
-				typed,
-				words,
-			],
+			[activeIndex, callbacks, handleNextWord, handlePrevWord, handleShortcuts, isStart, options.extraLimit, start, stop, typed, words],
 		);
 
 		const attachEventListeners = useCallback(() => {

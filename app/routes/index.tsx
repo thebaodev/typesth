@@ -7,6 +7,7 @@ import TestResult from '~/components/TestResult';
 
 const Index = () => {
 	const [isReady, setIsReady] = useState(false);
+	const [isFocus, setIsFocus] = useState(false);
 	const [isTesting, setIsTesting] = useState(false);
 	const [isTested, setIsTested] = useState(false);
 	const [testData, setTestData] = useState<
@@ -32,15 +33,23 @@ const Index = () => {
 		setTestData({ words, typed, time });
 	};
 
+	const handleFocused = () => {
+		setIsFocus(true);
+	};
+
+	const handleBlurred = () => {
+		setIsFocus(false);
+	};
+
 	const handleRestart = () => {
 		setIsTesting(false);
 		setIsTested(false);
 		setTestData(undefined);
-  };
+	};
 
 	return (
 		<main className="grid grid-rows-[auto_6fr_1fr_auto] grid-cols-[1fr] h-screen w-screen items-center justify-center bg-base-100">
-			<Header isShowMenu={!isTesting} />
+			<Header isShowHeading={!isTesting} isShowMenu={!isFocus || !isTesting} />
 			{isTested ? (
 				<TestResult
 					isActive={!!testData}
@@ -57,12 +66,14 @@ const Index = () => {
 					callbacks={{
 						onStarted: handleStarted,
 						onStopped: handleStopped,
-            onRestart: handleRestart,
+						onFocus: handleFocused,
+						onBlur: handleBlurred,
+						onRestart: handleRestart,
 					}}
 				/>
 			)}
 			<KBDHint
-				isActive={isTesting || isTested}
+				isActive={isTesting || isTested || !isFocus}
 				isShowStop={!isTested}
 				className="text-center opacity-40 self-start"
 			/>

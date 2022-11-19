@@ -13,12 +13,12 @@ export const isFunctionKeys = (e: KeyboardEvent) => {
 };
 
 export const getShortcut = (e: KeyboardEvent) => {
-	const { key, ctrlKey, altKey, metaKey, shiftKey } = e;
+	const { code, ctrlKey, altKey, metaKey, shiftKey } = e;
 	const keys = [];
 	if (ctrlKey) keys.push('ctrl');
 	if (altKey) keys.push('alt');
 	if (metaKey) keys.push('meta');
 	if (shiftKey) keys.push('shift');
-	if (key) keys.push(key);
+	if (code) keys.push(code);
 	return keys.join('+').toLowerCase();
 };

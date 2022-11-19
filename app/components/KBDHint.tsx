@@ -5,11 +5,17 @@ import clsx from 'clsx';
 type KBDHintProps = {
 	className?: string;
 	isActive?: boolean;
+	isShowStop?: boolean;
 };
 const KBDHint = forwardRef<HTMLDivElement, KBDHintProps>(
-	({ className = '', isActive = false }: KBDHintProps, ref) => {
+	(
+		{ className = '', isActive = true, isShowStop = true }: KBDHintProps,
+		ref,
+	) => {
 		return (
-			<section className={clsx('grid justify-center items-center h-12', className)}>
+			<section
+				className={clsx('grid justify-center items-center', className)}
+			>
 				<Transition
 					show={isActive}
 					enter="transition-opacity ease-linear  duration-400"
@@ -19,11 +25,22 @@ const KBDHint = forwardRef<HTMLDivElement, KBDHintProps>(
 					leaveFrom="opacity-100"
 					leaveTo="opacity-0"
 				>
-					<div className="grid grid-cols-[1fr_auto] items-center">
+					<div className="grid grid-cols-[1fr_auto] items-center gap-4">
+						{isShowStop && (
+							<>
+								<figure>
+									<kbd className="kbd">ctrl</kbd> +{' '}
+									<kbd className="kbd">space</kbd>
+								</figure>
+								<label className="text-lg font-light ml-4 text-left">
+									stop
+								</label>
+							</>
+						)}
 						<figure>
 							<kbd className="kbd">ctrl</kbd> + <kbd className="kbd">enter</kbd>
 						</figure>
-						<label className="text-lg font-light ml-4">restart</label>
+						<label className="text-lg font-light ml-4 text-left">restart</label>
 					</div>
 				</Transition>
 			</section>

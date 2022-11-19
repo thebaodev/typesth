@@ -4,15 +4,15 @@ import clsx from 'clsx';
 
 type FooterProps = {
 	className?: string;
-	isShowMenu?: boolean;
+	isShow?: boolean;
 };
 
 const Footer = forwardRef<HTMLDivElement, FooterProps>(
-	({ className = '', isShowMenu = true }: FooterProps, ref) => {
+	({ className = '', isShow = true }: FooterProps, ref) => {
 		return (
 			<footer className={clsx('w-full p-4 opacity-40 h-12', className)}>
 				<Transition
-					show={isShowMenu}
+					show={isShow}
 					enter="transition-opacity ease-linear  duration-400"
 					enterFrom="opacity-0"
 					enterTo="opacity-100"

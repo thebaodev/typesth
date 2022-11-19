@@ -13,6 +13,7 @@ import { getShortcut, isFunctionKeys } from '~/helpers/keys';
 import { Transition } from '@headlessui/react';
 
 type TypeTesterProps = {
+	isActive: boolean;
 	className?: string;
 	words?: string[];
 	options?: {
@@ -22,12 +23,14 @@ type TypeTesterProps = {
 	};
 	callbacks?: {
 		onStarted?: () => void;
-		onStopped?: () => void;
+		onStopped?: (words: string[], typed: string[], time: number) => void;
+		onRestart?: () => void;
 	};
 };
 const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 	(
 		{
+			isActive = true,
 			className = '',
 			words = ['right', 'now', 'right', 'down', 'here', 'on', 'earth'],
 			options = {
@@ -38,11 +41,11 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			callbacks = {
 				onStarted: () => {},
 				onStopped: () => {},
+				onRestart: () => {},
 			},
 		}: TypeTesterProps,
 		ref,
 	) => {
-		const [isReady, setIsReady] = useState(false);
 		const [timer, setTimer] = useState(0);
 		const [isStart, setIsStart] = useState(false);
 		const [isFocus, setIsFocus] = useState(false);
@@ -70,22 +73,21 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			setIsStart(false);
 			setIsFocus(false);
 			if (callbacks?.onStopped) {
-				callbacks.onStopped();
+				callbacks.onStopped(words, history, timer);
 			}
-		}, [callbacks]);
+		}, [callbacks, history, timer, words]);
 
 		const restart = useCallback(() => {
+			setIsStart(false);
 			setActiveIndex(0);
 			setTyped('');
 			setHistory([]);
 			setHiddenIndexes([]);
 			setTimer(0);
-			stop();
-		}, [stop]);
-
-		useEffect(() => {
-			setIsReady(true);
-		}, []);
+			if (callbacks?.onRestart) {
+				callbacks.onRestart();
+			}
+		}, [callbacks]);
 
 		useInterval(
 			() => {
@@ -94,15 +96,23 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			isStart ? 1000 : null,
 		);
 
-		const handleShortcuts = useCallback((e: KeyboardEvent) => {
-			const shortcut = getShortcut(e);
-			if (!shortcut) return;
-			switch (shortcut) {
-				case SHORTCUTS.restart:
-					restart();
-					break;
-			}
-		}, [restart]);
+		const handleShortcuts = useCallback(
+			(e: KeyboardEvent) => {
+				const shortcut = getShortcut(e);
+				if (!shortcut) return;
+				switch (shortcut) {
+					case SHORTCUTS.restart:
+						restart();
+						break;
+					case SHORTCUTS.stop:
+						stop();
+						break;
+					default:
+						break;
+				}
+			},
+			[restart, stop],
+		);
 
 		const handleNextWord = useCallback(
 			(nextIndex: number) => {
@@ -184,6 +194,8 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			(e: KeyboardEvent) => {
 				e.preventDefault();
 				handleShortcuts(e);
+				const lastWord = words[words.length - 1];
+				const isLastWord = activeIndex === words.length - 1;
 				switch (e.code) {
 					case KEYCODES.SPACE:
 						if (typed.length > 0) {
@@ -194,6 +206,9 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 							}
 							handleNextWord(nextWordIndex);
 							caretDirectionRef.current = 'forward';
+						}
+						if (isLastWord) {
+							stop();
 						}
 						break;
 					case KEYCODES.BACKSPACE:
@@ -218,8 +233,6 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 							return;
 						const newTyped = typed + e.key;
 						setTyped(newTyped);
-						const lastWord = words[words.length - 1];
-						const isLastWord = activeIndex === words.length - 1;
 						if (isLastWord && newTyped === lastWord) {
 							stop();
 						}
@@ -261,8 +274,7 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 				ref={ref}
 			>
 				<Transition
-					show={isReady}
-					appear={true}
+					show={isActive}
 					enter="transition-opacity duration-1000"
 					enterFrom="opacity-0"
 					enterTo="opacity-100"

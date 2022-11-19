@@ -14,7 +14,7 @@ const KBDHint = forwardRef<HTMLDivElement, KBDHintProps>(
 	) => {
 		return (
 			<section
-				className={clsx('grid justify-center items-center', className)}
+				className={clsx('grid justify-center items-center h-24', className)}
 			>
 				<Transition
 					show={isActive}

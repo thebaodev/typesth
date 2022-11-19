@@ -7,12 +7,16 @@ import { Transition } from '@headlessui/react';
 
 type HeaderProps = {
 	className?: string;
+	isShowHeading?: boolean;
 	isShowMenu?: boolean;
 };
 
 const HEADING_TEXT = 'type something endlessly...';
 const Header = forwardRef<HTMLDivElement, HeaderProps>(
-	({ className = '', isShowMenu = true }: HeaderProps, ref) => {
+	(
+		{ className = '', isShowHeading = true, isShowMenu = true }: HeaderProps,
+		ref,
+	) => {
 		const headingRef = useRef<HTMLHeadingElement>(null);
 		const animateHeading = () => {
 			const heading = headingRef.current;
@@ -43,16 +47,16 @@ const Header = forwardRef<HTMLDivElement, HeaderProps>(
 						alt="type something endlessly"
 					/>
 				</a>
-				<Transition
-					show={isShowMenu}
-					enter="transition-opacity ease-linear  duration-400"
-					enterFrom="opacity-0"
-					enterTo="opacity-100"
-					leave="transition-opacity ease-linear  duration-400"
-					leaveFrom="opacity-100"
-					leaveTo="opacity-0"
-				>
-					<div className="flex items-center">
+				<div className="flex items-center justify-end">
+					<Transition
+						show={isShowHeading}
+						enter="transition-opacity ease-linear  duration-400"
+						enterFrom="opacity-0"
+						enterTo="opacity-100"
+						leave="transition-opacity ease-linear  duration-400"
+						leaveFrom="opacity-100"
+						leaveTo="opacity-0"
+					>
 						<h1
 							ref={headingRef}
 							className="font-sans ml-auto mr-2 text-md lg:text-sm text-base-400"
@@ -68,9 +72,19 @@ const Header = forwardRef<HTMLDivElement, HeaderProps>(
 								);
 							})}
 						</h1>
+					</Transition>
+					<Transition
+						show={isShowMenu}
+						enter="transition-opacity ease-linear  duration-400"
+						enterFrom="opacity-0"
+						enterTo="opacity-100"
+						leave="transition-opacity ease-linear  duration-400"
+						leaveFrom="opacity-100"
+						leaveTo="opacity-0"
+					>
 						<ThemeSwitcher />
-					</div>
-				</Transition>
+					</Transition>
+				</div>
 			</header>
 		);
 	},

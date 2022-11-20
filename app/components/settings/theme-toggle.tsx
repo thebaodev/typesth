@@ -2,14 +2,15 @@ import React from 'react';
 import { THEMES } from '~/constant';
 import { BeakerIcon } from '@heroicons/react/24/outline';
 
-const ThemeSwitcher = () => {
+const ThemeToggle = () => {
 	const setTheme = (theme: string) => {
 		const root = document.documentElement;
 		root.setAttribute('data-theme', theme);
 	};
 
 	const randomTheme = () => {
-		const theme = THEMES[Math.floor(Math.random() * THEMES.length)];
+		const themes = Object.values(THEMES);
+		const theme = themes[Math.floor(Math.random() * themes.length)];
 		setTheme(theme.value);
 	};
 
@@ -25,4 +26,4 @@ const ThemeSwitcher = () => {
 	);
 };
 
-export default ThemeSwitcher;
+export default ThemeToggle;

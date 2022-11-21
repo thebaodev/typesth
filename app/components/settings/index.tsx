@@ -18,4 +18,5 @@ const Settings = forwardRef<HTMLDivElement, SettingsProps>(
 	},
 );
 
+Settings.displayName = 'Settings';
 export default Settings;

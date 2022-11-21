@@ -34,31 +34,32 @@ const Header = forwardRef<HTMLDivElement, HeaderProps>(
 		return (
 			<header
 				className={clsx(
-					'flex items-center justify-between w-full p-4',
+					'flex flex-col md:flex-row items-center justify-between w-full p-4',
 					className,
 				)}
 			>
-				<Transition show={state !== STATE_RUNNING}>
-					<div className="flex items-center">
-						<a href="/" className="btn btn-ghost rounded-md px-4 mr-2">
-							<img className="w-8 md:w-8" src={logo} alt="typesth endlessly" />
-						</a>
-						<h1
-							ref={headingRef}
-							className="font-sans ml-auto mr-2 text-sm md:text-md lg:text-sm text-base-400 opacity-80"
-						>
-							{HEADING_TEXT.split('').map((char, index) => {
-								return (
-									<span
-										className={clsx('inline-flex', { 'ml-1': !char.trim() })}
-										key={index}
-									>
-										{char}
-									</span>
-								);
-							})}
-						</h1>
-					</div>
+				<Transition
+					show={state !== STATE_RUNNING}
+					className="flex items-center self-start md:self-center"
+				>
+					<a href="/" className="btn btn-ghost rounded-md px-4 mr-2">
+						<img className="w-8 md:w-8" src={logo} alt="typesth endlessly" />
+					</a>
+					<h1
+						ref={headingRef}
+						className="font-sans ml-auto mr-2 text-sm md:text-md lg:text-sm text-base-400 opacity-80"
+					>
+						{HEADING_TEXT.split('').map((char, index) => {
+							return (
+								<span
+									className={clsx('inline-flex', { 'ml-1': !char.trim() })}
+									key={index}
+								>
+									{char}
+								</span>
+							);
+						})}
+					</h1>
 				</Transition>
 				{right}
 			</header>

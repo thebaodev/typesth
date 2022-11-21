@@ -32,4 +32,5 @@ const Transition = forwardRef<HTMLDivElement, TransitionProps>(
 	},
 );
 
+Transition.displayName = 'Transition';
 export default Transition;

@@ -31,7 +31,7 @@ const Index = () => {
 		});
 	}
 	return (
-		<main className="h-screen w-screen bg-base-100 grid grid-rows-[96px_1fr_56px]">
+		<main className="h-screen w-screen bg-base-100 grid grid-rows-[auto_1fr_56px] md:grid-rows-[96px_1fr_56px]">
 			<Header
 				right={
 					<Transition show={state !== STATE_RUNNING}>
@@ -39,7 +39,7 @@ const Index = () => {
 					</Transition>
 				}
 			/>
-			<section className="container h-full grid grid-rows-[4fr_1fr] md:grid-rows-[8fr_1fr] items-center m-auto px-4 md:px-16 lg:px-24">
+			<section className="container max-w-screen-xl h-full grid grid-rows-[4fr_120px] md:grid-rows-[8fr_120px] md:pt-[80px] items-center m-auto px-4 md:px-16 lg:px-24">
 				{state === STATE_IDLE ||
 				state === STATE_RUNNING ||
 				state === STATE_PAUSED ? (
@@ -63,7 +63,6 @@ const Index = () => {
 						/>
 					</Transition>
 				)}
-
 				<Transition show={state === STATE_RUNNING || state === STATE_FINISHED}>
 					<KBDHint hints={hints} />
 				</Transition>

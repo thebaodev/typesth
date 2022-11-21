@@ -20,7 +20,6 @@ module.exports = {
 	},
 	plugins: [require('daisyui')],
 	daisyui: {
-    darkTheme: 'dracula',
 		themes: [
 			'light',
 			'dark',

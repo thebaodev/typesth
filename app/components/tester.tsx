@@ -7,15 +7,22 @@ import React, {
 } from 'react';
 import clsx from 'clsx';
 import anime from 'animejs';
-import { KEYCODES, SHORTCUTS, TIMER_ENDLESS, TIMER_OPTIONS } from '~/constant';
+import {
+	KEYCODES,
+	SHORTCUTS,
+	STATE_FINISHED,
+	STATE_IDLE,
+	STATE_RUNNING,
+	TIMER_ENDLESS,
+	TIMER_OPTIONS,
+} from '~/constant';
 import { useInterval } from '~/hooks/useInterval';
 import { getShortcut, isFunctionKeys } from '~/helpers/keys';
-import { Transition } from '@headlessui/react';
 import usePrev from '~/hooks/usePrev';
 import defaultWords from '~/data/default-words.json';
+import useStore from '~/store';
 
 type TypeTesterProps = {
-	isActive: boolean;
 	className?: string;
 	words?: string[];
 	options?: {
@@ -24,16 +31,10 @@ type TypeTesterProps = {
 		showLines: number;
 		extraLimit: number;
 	};
-	callbacks?: {
-		onStarted: () => void;
-		onFinished: (words: string[], typed: string[], time: number) => void;
-		onRestart: () => void;
-	};
 };
-const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
+const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 	(
 		{
-			isActive = true,
 			className = '',
 			words = defaultWords.data,
 			options = {
@@ -42,14 +43,10 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 				showLines: 3,
 				extraLimit: 10,
 			},
-			callbacks = {
-				onStarted: () => {},
-				onFinished: () => {},
-				onRestart: () => {},
-			},
 		}: TypeTesterProps,
 		ref,
 	) => {
+		const { updateState, updateResult } = useStore(state => state);
 		const [timer, setTimer] = useState(options.timer);
 		const [isStart, setIsStart] = useState(false);
 		const [isFocus, setIsFocus] = useState(false);
@@ -68,20 +65,27 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			setIsStart(true);
 			setIsFocus(true);
 			setActiveIndex(0);
-			if (callbacks?.onStarted) {
-				callbacks.onStarted();
-			}
-		}, [callbacks]);
+
+			updateState(STATE_RUNNING);
+		}, [updateState]);
 
 		const stop = useCallback(() => {
 			setIsStart(false);
 			setIsFocus(false);
-			if (callbacks?.onFinished) {
-				const newHistory = [...history, typed];
-				const time = options.timer === TIMER_ENDLESS ? timer : options.timer;
-				callbacks.onFinished(words, newHistory, time);
-			}
-		}, [callbacks, history, options.timer, timer, typed, words]);
+
+			const newHistory = [...history, typed];
+			const time = options.timer === TIMER_ENDLESS ? timer : options.timer;
+			updateResult({ words, typed: newHistory, timeTyped: time });
+			updateState(STATE_FINISHED);
+		}, [
+			history,
+			typed,
+			options.timer,
+			timer,
+			updateResult,
+			words,
+			updateState,
+		]);
 
 		const restart = useCallback(() => {
 			setIsStart(false);
@@ -90,10 +94,8 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			setHistory([]);
 			setHiddenIndexes([]);
 			setTimer(options.timer);
-			if (callbacks?.onRestart) {
-				callbacks.onRestart();
-			}
-		}, [callbacks, options.timer]);
+			updateState(STATE_IDLE);
+		}, [options.timer, updateState]);
 
 		const prevTimerOption = usePrev(options.timer);
 		useEffect(() => {
@@ -262,7 +264,18 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 						}
 				}
 			},
-			[activeIndex, handleNextWord, handlePrevWord, handleShortcuts, isStart, options.extraLimit, start, stop, typed, words],
+			[
+				activeIndex,
+				handleNextWord,
+				handlePrevWord,
+				handleShortcuts,
+				isStart,
+				options.extraLimit,
+				start,
+				stop,
+				typed,
+				words,
+			],
 		);
 
 		const attachEventListeners = useCallback(() => {
@@ -284,108 +297,94 @@ const TypeTester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		return (
 			<div
 				className={clsx(
-					'grid grid-rows-[auto_1fr] font-mono h-full mt-24 md:h-auto md:mt-auto',
+					'grid grid-rows-[1fr_auto_1fr] font-mono h-full',
 					className,
 				)}
-				ref={ref}
 			>
-				<Transition
-					show={isActive}
-					enter="transition-opacity duration-1000"
-					enterFrom="opacity-0"
-					enterTo="opacity-100"
-					leave="transition-opacity duration-1000"
-					leaveFrom="opacity-100"
-					leaveTo="opacity-0"
+				<div className="text-3xl text-primary px-2 text-accent">{timer}</div>
+				<div
+					ref={typeViewRef}
+					className={clsx(
+						'flex items-center flex-wrap gap-x-4 overflow-hidden px-2 mt-2 text-5xl',
+					)}
+					style={{
+						maxHeight: `${viewHeight}px`,
+						fontSize: `${options.fontSize}px`,
+						lineHeight: `${lineHeight}px`,
+					}}
 				>
-					<div className="text-3xl text-primary px-2 text-accent">{timer}</div>
-					<div
-						ref={typeViewRef}
-						className={clsx(
-							'flex items-center flex-wrap gap-x-4 overflow-hidden px-2 mt-2 text-5xl',
-						)}
-						style={{
-							maxHeight: `${viewHeight}px`,
-							fontSize: `${options.fontSize}px`,
-							lineHeight: `${lineHeight}px`,
-						}}
-					>
-						{filteredWords.map((word, index) => {
-							const wordIndex = index + hiddenIndexes.length;
-							const isActive = wordIndex === activeIndex;
-							const isTypedWord = history[wordIndex];
-							const extraChars = isActive
-								? typed.slice(word.length)
-								: history[wordIndex]?.slice(word.length) || '';
-							return (
-								<span
-									key={word + wordIndex}
-									className="word relative h-ful flex items-center"
-								>
-									{isActive && (
+					{filteredWords.map((word, index) => {
+						const wordIndex = index + hiddenIndexes.length;
+						const isActive = wordIndex === activeIndex;
+						const isTypedWord = history[wordIndex];
+						const extraChars = isActive
+							? typed.slice(word.length)
+							: history[wordIndex]?.slice(word.length) || '';
+						return (
+							<span
+								key={word + wordIndex}
+								className="word relative h-ful flex items-center"
+							>
+								{isActive && (
+									<span
+										ref={caretRef}
+										className={clsx(
+											'caret absolute top-0 h-full flex w-1 rounded-lg -translate-x-[1px] bg-warning',
+											{
+												'animate-blink': !isFocus,
+												'-left-4': caretDirectionRef.current === 'forward',
+												'-right-4': caretDirectionRef.current === 'backward',
+											},
+										)}
+									/>
+								)}
+								{word.split('').map((char, charIndex) => {
+									const isTypedChar =
+										isTypedWord || !!(isActive && typed[charIndex]);
+									const isSkippedChar =
+										isTypedChar &&
+										history[wordIndex] &&
+										!history[wordIndex][charIndex];
+									let isCorrect = false;
+									if (isTypedWord) {
+										isCorrect = history[wordIndex][charIndex] === char;
+									} else if (isTypedChar) {
+										isCorrect = typed[charIndex] === char;
+									}
+									return (
 										<span
-											ref={caretRef}
-											className={clsx(
-												'caret absolute top-0 h-full flex w-1 rounded-lg -translate-x-[1px] bg-warning',
-												{
-													'animate-blink': !isFocus,
-													'-left-4': caretDirectionRef.current === 'forward',
-													'-right-4': caretDirectionRef.current === 'backward',
-												},
-											)}
-										/>
-									)}
-									{word.split('').map((char, charIndex) => {
-										const isTypedChar =
-											isTypedWord || !!(isActive && typed[charIndex]);
-										const isSkippedChar =
-											isTypedChar &&
-											history[wordIndex] &&
-											!history[wordIndex][charIndex];
-										let isCorrect = false;
-										if (isTypedWord) {
-											isCorrect = history[wordIndex][charIndex] === char;
-										} else if (isTypedChar) {
-											isCorrect = typed[charIndex] === char;
-										}
-										return (
+											key={char + charIndex}
+											className={clsx('char transition-all duration-600 ease', {
+												'text-base-content': !isTypedChar,
+												'underline underline-offset-8 text-warning-content':
+													isSkippedChar,
+												'text-success': isTypedChar && isCorrect,
+												'text-error': isTypedChar && !isCorrect,
+											})}
+										>
+											{char}
+										</span>
+									);
+								})}
+								<span>
+									{extraChars &&
+										extraChars.split('').map((char, charIndex) => (
 											<span
 												key={char + charIndex}
-												className={clsx(
-													'char transition-all duration-600 ease',
-													{
-														'text-base-content': !isTypedChar,
-														'underline underline-offset-8 text-warning-content':
-															isSkippedChar,
-														'text-success': isTypedChar && isCorrect,
-														'text-error': isTypedChar && !isCorrect,
-													},
-												)}
+												className="char text-red-500"
 											>
 												{char}
 											</span>
-										);
-									})}
-									<span>
-										{extraChars &&
-											extraChars.split('').map((char, charIndex) => (
-												<span
-													key={char + charIndex}
-													className="char text-red-500"
-												>
-													{char}
-												</span>
-											))}
-									</span>
+										))}
 								</span>
-							);
-						})}
-					</div>
-				</Transition>
+							</span>
+						);
+					})}
+				</div>
 			</div>
 		);
 	},
 );
 
-TypeTester.displayName = 'TypeTester';
-export default TypeTester;
+Tester.displayName = 'TypeTester';
+export default Tester;

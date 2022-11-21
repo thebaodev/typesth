@@ -10,7 +10,10 @@ type SettingsProps = {
 const Settings = forwardRef<HTMLDivElement, SettingsProps>(
 	({ className = '' }: SettingsProps, ref) => {
 		return (
-			<div className={clsx('flex p-1 bg-base-100 rounded-lg p-2', className)}>
+			<div
+				ref={ref}
+				className={clsx('flex p-1 bg-base-100 rounded-lg p-2', className)}
+			>
 				<TimerToggle />
 				<ThemeToggle />
 			</div>
@@ -18,4 +21,5 @@ const Settings = forwardRef<HTMLDivElement, SettingsProps>(
 	},
 );
 
+Settings.displayName = 'Settings';
 export default Settings;

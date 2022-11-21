@@ -36,4 +36,5 @@ const TimerToggle = forwardRef<HTMLButtonElement, TimerToggleProps>(
 	},
 );
 
+TimerToggle.displayName = 'TimerToggle';
 export default TimerToggle;

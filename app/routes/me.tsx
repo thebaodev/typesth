@@ -1,16 +1,25 @@
-import { Test } from '@prisma/client';
-import { json, LoaderFunction } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import type { Test } from '@prisma/client';
+import type { LoaderFunction } from '@remix-run/node';
+import { json } from '@remix-run/node';
+import { Link, useLoaderData } from '@remix-run/react';
 import React from 'react';
 import { db } from '~/utils/db.server';
+import { getUser } from '~/utils/session.server';
 
 type LoaderData = {
+	user: Awaited<ReturnType<typeof getUser>>;
 	tests: Array<Test>;
 };
 
-export const loader: LoaderFunction = async () => {
+export const loader: LoaderFunction = async ({ request }) => {
+	const tests = await db.test.findMany({
+		take: 5,
+		orderBy: { createdAt: 'desc' },
+	});
+	const user = await getUser(request);
 	const data: LoaderData = {
-		tests: await db.test.findMany(),
+		tests,
+		user,
 	};
 	return json(data);
 };
@@ -21,7 +30,19 @@ const Me = () => {
 		<div>
 			{data.tests.map(test => {
 				return (
-					<div>
+					<div key={test.id}>
+						{data.user ? (
+							<div className="user-info">
+								<span>{`Hi ${data.user.username}`}</span>
+								<form action="/logout" method="post">
+									<button type="submit" className="button">
+										Logout
+									</button>
+								</form>
+							</div>
+						) : (
+							<Link to="/login">Login</Link>
+						)}
 						<span>{test.wpm}</span>
 						<span>{test.accuracy}</span>
 						<span>{test.timeTyped}</span>

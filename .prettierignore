@@ -16,3 +16,9 @@ api/index.js.map
 /coverage
 api/
 .vscode/
+
+node_modules
+
+/.cache
+
+/prisma/dev.db

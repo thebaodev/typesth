@@ -6,6 +6,9 @@
   "license": "ISC",
   "main": "server.js",
   "sideEffects": false,
+  "prisma": {
+    "seed": "node --require esbuild-register prisma/seed.ts"
+  },
   "scripts": {
     "build": "run-s build:*",
     "build:css": "npm run generate:css -- --env production",
@@ -25,6 +28,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.4",
     "@heroicons/react": "^2.0.13",
+    "@prisma/client": "^4.6.1",
     "@remix-run/node": "^1.7.4",
     "@remix-run/react": "^1.7.4",
     "@remix-run/vercel": "^1.7.4",
@@ -54,6 +58,7 @@
     "autoprefixer": "^10.4.13",
     "c8": "^7.11.3",
     "cssnano": "^5.1.14",
+    "esbuild-register": "^3.4.1",
     "eslint": "^8.11.0",
     "eslint-config-prettier": "^8.5.0",
     "happy-dom": "^7.5.12",
@@ -64,6 +69,7 @@
     "postcss-cli": "^10.0.0",
     "postcss-import": "^15.0.0",
     "prettier": "^2.7.1",
+    "prisma": "^4.6.1",
     "stylelint": "^14.14.1",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-recommended": "^9.0.0",

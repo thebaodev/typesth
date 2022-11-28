@@ -17,7 +17,6 @@ import Transition from '~/components/transition';
 
 const Index = () => {
 	const { state, settings, result } = useStore(state => state);
-
 	const hints = [
 		{
 			label: 'restart',

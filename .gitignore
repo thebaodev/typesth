@@ -10,8 +10,8 @@ node_modules
 /server/index.js
 /public/build
 
-.cache
 .env
+.cache
 .vercel
 .output
 .vscode

@@ -28,21 +28,21 @@ const Me = () => {
 	const data = useLoaderData<LoaderData>();
 	return (
 		<div>
+			{data.user ? (
+				<div className="user-info">
+					<span>{`Hi ${data.user.username}`}</span>
+					<form action="/logout" method="post">
+						<button type="submit" className="button">
+							Logout
+						</button>
+					</form>
+				</div>
+			) : (
+				<Link to="/login">Login</Link>
+			)}
 			{data.tests.map(test => {
 				return (
 					<div key={test.id}>
-						{data.user ? (
-							<div className="user-info">
-								<span>{`Hi ${data.user.username}`}</span>
-								<form action="/logout" method="post">
-									<button type="submit" className="button">
-										Logout
-									</button>
-								</form>
-							</div>
-						) : (
-							<Link to="/login">Login</Link>
-						)}
 						<span>{test.wpm}</span>
 						<span>{test.accuracy}</span>
 						<span>{test.timeTyped}</span>

@@ -8,12 +8,18 @@ datasource db {
 }
 
 model WordList {
-  id         String   @id @default(uuid())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  category   String
-  words      String
-  lang       String @default("en")
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  category  String
+  words     String
+  lang      String   @default("en")
+}
+
+model Setting {
+  id     String @id @default(uuid())
+  theme  String @default("dracula")
+  userId String
 }
 
 model User {
@@ -26,13 +32,13 @@ model User {
 }
 
 model Test {
-  id         String   @id @default(uuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  wpm        Float
-  accuracy   Float
-  timer      Int
-  timeTyped  Int
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  wpm       Float
+  accuracy  Float
+  timer     Int
+  timeTyped Int
 }

@@ -2,7 +2,8 @@ import type { ActionFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { useActionData, useSearchParams } from '@remix-run/react';
 import React from 'react';
-import { createUserSession, login } from '~/utils/session.server';
+import { db } from '~/utils/db.server';
+import { createUserSession, register } from '~/utils/session.server';
 
 function validateUsername(username: unknown) {
 	if (typeof username !== 'string' || username.length < 3) {
@@ -62,17 +63,26 @@ export const action: ActionFunction = async ({ request }) => {
 	if (Object.values(fieldErrors).some(Boolean))
 		return badRequest({ fieldErrors, fields });
 
-	const user = await login({ username, password });
+	const userExists = await db.user.findFirst({
+		where: { username },
+	});
+	if (userExists) {
+		return badRequest({
+			fields,
+			formError: `User with username ${username} already exists`,
+		});
+	}
+	const user = await register({ username, password });
 	if (!user) {
 		return badRequest({
 			fields,
-			formError: `Username/Password combination is incorrect`,
+			formError: `Something went wrong trying to create a new user.`,
 		});
 	}
 	return createUserSession(user.id, redirectTo);
 };
 
-const Login = () => {
+const Register = () => {
 	const actionData = useActionData<ActionData>();
 	const [searchParams] = useSearchParams();
 	return (
@@ -144,7 +154,7 @@ const Login = () => {
 						) : null}
 					</div>
 					<button type="submit" className="btn btn-primary mt-4">
-						login
+						register
 					</button>
 				</form>
 			</div>
@@ -152,4 +162,4 @@ const Login = () => {
 	);
 };
 
-export default Login;
+export default Register;

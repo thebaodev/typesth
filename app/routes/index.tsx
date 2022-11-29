@@ -14,8 +14,25 @@ import KBDHint from '~/components/kbd_hint';
 import Result from '~/components/result';
 import Settings from '~/components/settings';
 import Transition from '~/components/transition';
+import { getUser } from '~/utils/session.server';
+import type { LoaderFunction } from '@remix-run/node';
+import { json } from '@remix-run/node';
+import { useLoaderData } from '@remix-run/react';
+
+type LoaderData = {
+	user: Awaited<ReturnType<typeof getUser>>;
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+	const user = await getUser(request);
+	const data: LoaderData = {
+		user,
+	};
+	return json(data);
+};
 
 const Index = () => {
+	const data = useLoaderData<LoaderData>();
 	const { state, settings, result } = useStore(state => state);
 	const hints = [
 		{
@@ -29,12 +46,13 @@ const Index = () => {
 			keys: ['ctrl', 'space'],
 		});
 	}
+
 	return (
 		<main className="h-screen w-screen bg-base-100 grid grid-rows-[auto_1fr_56px] md:grid-rows-[96px_1fr_56px]">
 			<Header
 				right={
 					<Transition show={state !== STATE_RUNNING}>
-						<Settings />
+						<Settings user={data.user} />
 					</Transition>
 				}
 			/>

@@ -19,7 +19,6 @@ import {
 import { useInterval } from '~/hooks/useInterval';
 import { getShortcut, isFunctionKeys } from '~/helpers/keys';
 import usePrev from '~/hooks/usePrev';
-import defaultWords from '~/data/default-words.json';
 import useStore from '~/store';
 
 type TypeTesterProps = {
@@ -36,7 +35,7 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 	(
 		{
 			className = '',
-			words = defaultWords.data,
+			words = ['type', 'something', 'endlessly'],
 			options = {
 				fontSize: 56,
 				timer: TIMER_OPTIONS[0].value,

@@ -1,7 +1,10 @@
 import create from 'zustand';
 import { STATE_IDLE, THEMES, TIMER_15 } from '~/constant';
+import { getRandomWordList } from '~/helpers/random';
+import englishWords from '~/data/english.json';
 
 interface State {
+	words: string[];
 	state: string;
 	settings: {
 		theme: string;
@@ -22,6 +25,7 @@ interface State {
 }
 
 const useStore = create<State>()(set => ({
+	words: getRandomWordList(englishWords.data, 100),
 	state: STATE_IDLE,
 	settings: {
 		theme: THEMES.dark.value,

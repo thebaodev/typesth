@@ -16,8 +16,7 @@ import Settings from '~/components/settings';
 import Transition from '~/components/transition';
 
 const Index = () => {
-	const { state, settings, result } = useStore(state => state);
-
+	const { words, state, settings, result } = useStore(state => state);
 	const hints = [
 		{
 			label: 'restart',
@@ -30,6 +29,7 @@ const Index = () => {
 			keys: ['ctrl', 'space'],
 		});
 	}
+
 	return (
 		<main className="h-screen w-screen bg-base-100 grid grid-rows-[auto_1fr_56px] md:grid-rows-[96px_1fr_56px]">
 			<Header
@@ -45,6 +45,7 @@ const Index = () => {
 				state === STATE_PAUSED ? (
 					<Transition show appear>
 						<Tester
+							words={words}
 							options={{
 								fontSize: 56,
 								timer: settings.timer,

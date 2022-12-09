@@ -64,14 +64,12 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			setIsStart(true);
 			setIsFocus(true);
 			setActiveIndex(0);
-
 			updateState(STATE_RUNNING);
 		}, [updateState]);
 
 		const stop = useCallback(() => {
 			setIsStart(false);
 			setIsFocus(false);
-
 			const newHistory = [...history, typed];
 			const time = options.timer === TIMER_ENDLESS ? timer : options.timer;
 			updateResult({ words, typed: newHistory, timeTyped: time });

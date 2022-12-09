@@ -14,9 +14,20 @@ import KBDHint from '~/components/kbd_hint';
 import Result from '~/components/result';
 import Settings from '~/components/settings';
 import Transition from '~/components/transition';
+import englishWords from '~/data/english.json';
+import { getRandomWordList } from '~/helpers/random';
+import { json } from '@remix-run/node';
+import { useLoaderData } from '@remix-run/react';
+
+export const loader = async () => {
+	return json({
+		words: getRandomWordList(englishWords.data, 100),
+	});
+};
 
 const Index = () => {
-	const { words, state, settings, result } = useStore(state => state);
+	const { words } = useLoaderData();
+	const { state, settings, result } = useStore(state => state);
 	const hints = [
 		{
 			label: 'restart',

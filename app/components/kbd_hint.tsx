@@ -23,14 +23,14 @@ const KBDHint = forwardRef<HTMLDivElement, KBDHintProps>(
 						return (
 							<figcaption key={index} className="justify-start">
 								{hint.keys.map((key, index) => (
-									<>
-										<figure key={index} className="inline-flex">
+									<React.Fragment key={index}>
+										<figure className="inline-flex">
 											<kbd className="kbd">{key}</kbd>
 										</figure>
 										{index !== hint.keys.length - 1 && (
 											<span className="mx-1">+</span>
 										)}
-									</>
+									</React.Fragment>
 								))}
 								<label className="text-lg font-light ml-4 text-left">
 									{hint.label}

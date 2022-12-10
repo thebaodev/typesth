@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { TIMER_OPTIONS } from '~/constant';
+import { TIMER_ENDLESS, TIMER_OPTIONS } from '~/constant';
 import clsx from 'clsx';
 import useStore from '~/store';
 
@@ -25,6 +25,9 @@ const TimerToggle = forwardRef<HTMLButtonElement, TimerToggleProps>(
 			<button
 				className={clsx(
 					'btn btn-ghost font-light flex items-center rounded-lg h-12 text-lg lowercase',
+					{
+						'text-4xl': timerOption.value === TIMER_ENDLESS,
+					},
 					className,
 				)}
 				ref={ref}

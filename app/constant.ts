@@ -57,5 +57,5 @@ export const TIMER_OPTIONS = [
 	{ value: TIMER_15, label: '15' },
 	{ value: TIMER_30, label: '30' },
 	{ value: TIMER_60, label: '60' },
-	{ value: TIMER_ENDLESS, label: 'endless' },
+	{ value: TIMER_ENDLESS, label: '∞' },
 ];

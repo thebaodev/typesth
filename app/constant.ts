@@ -16,7 +16,6 @@ export const KEYCODES = {
 };
 
 export const SHORTCUTS = {
-	stop: 'ctrl+space',
 	restart: 'ctrl+enter',
 };
 

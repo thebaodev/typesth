@@ -13,14 +13,14 @@ import {
 	STATE_FINISHED,
 	STATE_IDLE,
 	STATE_RUNNING,
-	TIMER_ENDLESS,
 	TIMER_OPTIONS,
 } from '~/constant';
 import { useInterval } from '~/hooks/useInterval';
-import { getShortcut, isFunctionKeys } from '~/helpers/keys';
+import { isFunctionKeys } from '~/helpers/keys';
 import usePrev from '~/hooks/usePrev';
-import defaultWords from '~/data/default-words.json';
 import useStore from '~/store';
+import { Form } from '@remix-run/react';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 type TypeTesterProps = {
 	className?: string;
@@ -32,20 +32,18 @@ type TypeTesterProps = {
 		extraLimit: number;
 	};
 };
-const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
-	(
-		{
-			className = '',
-			words = defaultWords.data,
-			options = {
-				fontSize: 56,
-				timer: TIMER_OPTIONS[0].value,
-				showLines: 3,
-				extraLimit: 10,
-			},
-		}: TypeTesterProps,
-		ref,
-	) => {
+const Tester = forwardRef<HTMLFormElement, TypeTesterProps>(
+	({
+		className = '',
+		words = ['type', 'something', 'endlessly'],
+		options = {
+			fontSize: 56,
+			timer: TIMER_OPTIONS[0].value,
+			showLines: 3,
+			extraLimit: 10,
+		},
+	}: TypeTesterProps) => {
+		const innerRef = useRef<HTMLFormElement>(null);
 		const { updateState, updateResult } = useStore(state => state);
 		const [timer, setTimer] = useState(options.timer);
 		const [isStart, setIsStart] = useState(false);
@@ -65,27 +63,16 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			setIsStart(true);
 			setIsFocus(true);
 			setActiveIndex(0);
-
 			updateState(STATE_RUNNING);
 		}, [updateState]);
 
 		const stop = useCallback(() => {
 			setIsStart(false);
 			setIsFocus(false);
-
 			const newHistory = [...history, typed];
-			const time = options.timer === TIMER_ENDLESS ? timer : options.timer;
-			updateResult({ words, typed: newHistory, timeTyped: time });
+			updateResult({ words, typed: newHistory, timeTyped: options.timer });
 			updateState(STATE_FINISHED);
-		}, [
-			history,
-			typed,
-			options.timer,
-			timer,
-			updateResult,
-			words,
-			updateState,
-		]);
+		}, [history, typed, options.timer, updateResult, words, updateState]);
 
 		const restart = useCallback(() => {
 			setIsStart(false);
@@ -95,6 +82,7 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			setHiddenIndexes([]);
 			setTimer(options.timer);
 			updateState(STATE_IDLE);
+			innerRef.current?.submit();
 		}, [options.timer, updateState]);
 
 		const prevTimerOption = usePrev(options.timer);
@@ -107,37 +95,13 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 
 		useInterval(
 			() => {
-				if (options.timer === TIMER_ENDLESS) {
-					setTimer(timer + 1);
-				} else {
-					if (timer === 0) {
-						stop();
-						return;
-					}
-					setTimer(timer - 1);
+				if (timer === 0) {
+					stop();
+					return;
 				}
+				setTimer(timer - 1);
 			},
 			isStart ? 1000 : null,
-		);
-
-		const handleShortcuts = useCallback(
-			(e: KeyboardEvent) => {
-				e.preventDefault();
-				e.stopPropagation();
-				const shortcut = getShortcut(e);
-				if (!shortcut) return;
-				switch (shortcut) {
-					case SHORTCUTS.restart:
-						restart();
-						break;
-					case SHORTCUTS.stop:
-						stop();
-						break;
-					default:
-						break;
-				}
-			},
-			[restart, stop],
 		);
 
 		const handleNextWord = useCallback(
@@ -219,7 +183,6 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		const handleKeyDown = useCallback(
 			(e: KeyboardEvent) => {
 				e.preventDefault();
-				handleShortcuts(e);
 				const lastWord = words[words.length - 1];
 				const isLastWord = activeIndex === words.length - 1;
 				switch (e.code) {
@@ -268,7 +231,6 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 				activeIndex,
 				handleNextWord,
 				handlePrevWord,
-				handleShortcuts,
 				isStart,
 				options.extraLimit,
 				start,
@@ -286,6 +248,7 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			document.removeEventListener('keydown', handleKeyDown);
 		}, [handleKeyDown]);
 
+		useHotkeys(SHORTCUTS.restart, restart, [restart]);
 		useEffect(() => {
 			attachEventListeners();
 			return () => {
@@ -295,7 +258,9 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 
 		const filteredWords = words?.slice(hiddenIndexes.length, words?.length);
 		return (
-			<div
+			<Form
+				ref={innerRef}
+				method="get"
 				className={clsx(
 					'grid grid-rows-[1fr_auto_1fr] font-mono h-full',
 					className,
@@ -381,7 +346,7 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 						);
 					})}
 				</div>
-			</div>
+			</Form>
 		);
 	},
 );

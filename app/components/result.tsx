@@ -1,7 +1,7 @@
 import React, { forwardRef, useCallback, useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { getShortcut } from '~/helpers/keys';
-import { SHORTCUTS, STATE_IDLE, TIMER_15, TIMER_ENDLESS } from '~/constant';
+import { SHORTCUTS, STATE_IDLE, TIMER_15 } from '~/constant';
 import { plural } from '~/helpers/plural';
 import useStore from '~/store';
 
@@ -97,7 +97,7 @@ const Result = forwardRef<HTMLDivElement, TestResultProps>(
 			return { cpm, wpm, accuracy, timeTyped };
 		}, [calculateAccuracy, data]);
 
-		const { cpm, wpm, accuracy, timeTyped } = calculate();
+		const { cpm, wpm, accuracy } = calculate();
 		const typedWordsCount = data.typed.length;
 		return (
 			<div ref={ref} className={clsx('p-1 text-center', className)}>
@@ -123,7 +123,6 @@ const Result = forwardRef<HTMLDivElement, TestResultProps>(
 							you typed
 						</div>
 						<div className="stat-value flex flex-col text-2xl md:text-3xl lg:text-5xl mb-4">
-							{options.timer === TIMER_ENDLESS && <span>{timeTyped}s</span>}
 							<span>
 								{typedWordsCount} {plural('word', typedWordsCount)}
 							</span>

@@ -16,7 +16,6 @@ export const KEYCODES = {
 };
 
 export const SHORTCUTS = {
-	stop: 'ctrl+space',
 	restart: 'ctrl+enter',
 };
 
@@ -52,10 +51,10 @@ export const THEMES = {
 export const TIMER_15 = 15;
 export const TIMER_30 = 30;
 export const TIMER_60 = 60;
-export const TIMER_ENDLESS = 0;
+export const TIMER_120 = 120;
 export const TIMER_OPTIONS = [
 	{ value: TIMER_15, label: '15' },
 	{ value: TIMER_30, label: '30' },
 	{ value: TIMER_60, label: '60' },
-	{ value: TIMER_ENDLESS, label: 'endless' },
+	{ value: TIMER_120, label: '120' },
 ];

@@ -11,7 +11,7 @@ type HeaderProps = {
 	right?: React.ReactNode;
 };
 
-const HEADING_TEXT = 'typesth.endlessly';
+const HEADING_TEXT = 'typesth endlessly';
 const Header = forwardRef<HTMLDivElement, HeaderProps>(
 	({ className = '', right = undefined }: HeaderProps, ref) => {
 		const { state } = useStore(state => state);
@@ -42,12 +42,12 @@ const Header = forwardRef<HTMLDivElement, HeaderProps>(
 					show={state !== STATE_RUNNING}
 					className="flex items-center self-start md:self-center"
 				>
-					<a href="/" className="btn btn-ghost rounded-md px-4 mr-2">
+					<a href="/" className="btn btn-ghost rounded-md px-4 mr-1">
 						<img className="w-8 md:w-8" src={logo} alt="typesth endlessly" />
 					</a>
 					<h1
 						ref={headingRef}
-						className="font-sans ml-auto mr-2 text-sm md:text-md lg:text-sm text-base-400 opacity-80"
+						className="font-sans ml-auto text-sm md:text-md lg:text-sm text-base-400 opacity-80"
 					>
 						{HEADING_TEXT.split('').map((char, index) => {
 							return (

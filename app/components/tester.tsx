@@ -13,13 +13,11 @@ import {
 	STATE_FINISHED,
 	STATE_IDLE,
 	STATE_RUNNING,
-	TIMER_ENDLESS,
 	TIMER_OPTIONS,
 } from '~/constant';
 import { useInterval } from '~/hooks/useInterval';
 import { getShortcut, isFunctionKeys } from '~/helpers/keys';
 import usePrev from '~/hooks/usePrev';
-import defaultWords from '~/data/default-words.json';
 import useStore from '~/store';
 
 type TypeTesterProps = {
@@ -36,7 +34,7 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 	(
 		{
 			className = '',
-			words = defaultWords.data,
+			words = ['type', 'something', 'endlessly'],
 			options = {
 				fontSize: 56,
 				timer: TIMER_OPTIONS[0].value,
@@ -65,27 +63,16 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			setIsStart(true);
 			setIsFocus(true);
 			setActiveIndex(0);
-
 			updateState(STATE_RUNNING);
 		}, [updateState]);
 
 		const stop = useCallback(() => {
 			setIsStart(false);
 			setIsFocus(false);
-
 			const newHistory = [...history, typed];
-			const time = options.timer === TIMER_ENDLESS ? timer : options.timer;
-			updateResult({ words, typed: newHistory, timeTyped: time });
+			updateResult({ words, typed: newHistory, timeTyped: options.timer });
 			updateState(STATE_FINISHED);
-		}, [
-			history,
-			typed,
-			options.timer,
-			timer,
-			updateResult,
-			words,
-			updateState,
-		]);
+		}, [history, typed, options.timer, updateResult, words, updateState]);
 
 		const restart = useCallback(() => {
 			setIsStart(false);
@@ -107,15 +94,11 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 
 		useInterval(
 			() => {
-				if (options.timer === TIMER_ENDLESS) {
-					setTimer(timer + 1);
-				} else {
-					if (timer === 0) {
-						stop();
-						return;
-					}
-					setTimer(timer - 1);
+				if (timer === 0) {
+					stop();
+					return;
 				}
+				setTimer(timer - 1);
 			},
 			isStart ? 1000 : null,
 		);
@@ -129,9 +112,6 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 				switch (shortcut) {
 					case SHORTCUTS.restart:
 						restart();
-						break;
-					case SHORTCUTS.stop:
-						stop();
 						break;
 					default:
 						break;
@@ -296,6 +276,7 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		const filteredWords = words?.slice(hiddenIndexes.length, words?.length);
 		return (
 			<div
+				ref={ref}
 				className={clsx(
 					'grid grid-rows-[1fr_auto_1fr] font-mono h-full',
 					className,

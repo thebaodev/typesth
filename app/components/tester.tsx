@@ -13,13 +13,13 @@ import {
 	STATE_FINISHED,
 	STATE_IDLE,
 	STATE_RUNNING,
-	TIMER_ENDLESS,
 	TIMER_OPTIONS,
 } from '~/constant';
 import { useInterval } from '~/hooks/useInterval';
 import { getShortcut, isFunctionKeys } from '~/helpers/keys';
 import usePrev from '~/hooks/usePrev';
 import useStore from '~/store';
+import { Form } from '@remix-run/react';
 
 type TypeTesterProps = {
 	className?: string;
@@ -31,7 +31,7 @@ type TypeTesterProps = {
 		extraLimit: number;
 	};
 };
-const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
+const Tester = forwardRef<HTMLFormElement, TypeTesterProps>(
 	(
 		{
 			className = '',
@@ -45,6 +45,7 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 		}: TypeTesterProps,
 		ref,
 	) => {
+		const innerRef = useRef<HTMLFormElement>(null);
 		const { updateState, updateResult } = useStore(state => state);
 		const [timer, setTimer] = useState(options.timer);
 		const [isStart, setIsStart] = useState(false);
@@ -71,18 +72,9 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			setIsStart(false);
 			setIsFocus(false);
 			const newHistory = [...history, typed];
-			const time = options.timer === TIMER_ENDLESS ? timer : options.timer;
-			updateResult({ words, typed: newHistory, timeTyped: time });
+			updateResult({ words, typed: newHistory, timeTyped: options.timer });
 			updateState(STATE_FINISHED);
-		}, [
-			history,
-			typed,
-			options.timer,
-			timer,
-			updateResult,
-			words,
-			updateState,
-		]);
+		}, [history, typed, options.timer, updateResult, words, updateState]);
 
 		const restart = useCallback(() => {
 			setIsStart(false);
@@ -92,6 +84,7 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 			setHiddenIndexes([]);
 			setTimer(options.timer);
 			updateState(STATE_IDLE);
+			innerRef.current?.submit();
 		}, [options.timer, updateState]);
 
 		const prevTimerOption = usePrev(options.timer);
@@ -104,15 +97,11 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 
 		useInterval(
 			() => {
-				if (options.timer === TIMER_ENDLESS) {
-					setTimer(timer + 1);
-				} else {
-					if (timer === 0) {
-						stop();
-						return;
-					}
-					setTimer(timer - 1);
+				if (timer === 0) {
+					stop();
+					return;
 				}
+				setTimer(timer - 1);
 			},
 			isStart ? 1000 : null,
 		);
@@ -292,7 +281,9 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 
 		const filteredWords = words?.slice(hiddenIndexes.length, words?.length);
 		return (
-			<div
+			<Form
+				ref={innerRef}
+				method="get"
 				className={clsx(
 					'grid grid-rows-[1fr_auto_1fr] font-mono h-full',
 					className,
@@ -378,7 +369,7 @@ const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
 						);
 					})}
 				</div>
-			</div>
+			</Form>
 		);
 	},
 );

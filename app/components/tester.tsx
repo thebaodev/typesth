@@ -16,11 +16,9 @@ import {
 	TIMER_OPTIONS,
 } from '~/constant';
 import { useInterval } from '~/hooks/useInterval';
-import { isFunctionKeys } from '~/helpers/keys';
+import { getShortcut, isFunctionKeys } from '~/helpers/keys';
 import usePrev from '~/hooks/usePrev';
 import useStore from '~/store';
-import { Form } from '@remix-run/react';
-import { useHotkeys } from 'react-hotkeys-hook';
 
 type TypeTesterProps = {
 	className?: string;
@@ -32,18 +30,20 @@ type TypeTesterProps = {
 		extraLimit: number;
 	};
 };
-const Tester = forwardRef<HTMLFormElement, TypeTesterProps>(
-	({
-		className = '',
-		words = ['type', 'something', 'endlessly'],
-		options = {
-			fontSize: 56,
-			timer: TIMER_OPTIONS[0].value,
-			showLines: 3,
-			extraLimit: 10,
-		},
-	}: TypeTesterProps) => {
-		const innerRef = useRef<HTMLFormElement>(null);
+const Tester = forwardRef<HTMLDivElement, TypeTesterProps>(
+	(
+		{
+			className = '',
+			words = ['type', 'something', 'endlessly'],
+			options = {
+				fontSize: 56,
+				timer: TIMER_OPTIONS[0].value,
+				showLines: 3,
+				extraLimit: 10,
+			},
+		}: TypeTesterProps,
+		ref,
+	) => {
 		const { updateState, updateResult } = useStore(state => state);
 		const [timer, setTimer] = useState(options.timer);
 		const [isStart, setIsStart] = useState(false);
@@ -82,7 +82,6 @@ const Tester = forwardRef<HTMLFormElement, TypeTesterProps>(
 			setHiddenIndexes([]);
 			setTimer(options.timer);
 			updateState(STATE_IDLE);
-			innerRef.current?.submit();
 		}, [options.timer, updateState]);
 
 		const prevTimerOption = usePrev(options.timer);
@@ -102,6 +101,23 @@ const Tester = forwardRef<HTMLFormElement, TypeTesterProps>(
 				setTimer(timer - 1);
 			},
 			isStart ? 1000 : null,
+		);
+
+		const handleShortcuts = useCallback(
+			(e: KeyboardEvent) => {
+				e.preventDefault();
+				e.stopPropagation();
+				const shortcut = getShortcut(e);
+				if (!shortcut) return;
+				switch (shortcut) {
+					case SHORTCUTS.restart:
+						restart();
+						break;
+					default:
+						break;
+				}
+			},
+			[restart, stop],
 		);
 
 		const handleNextWord = useCallback(
@@ -183,6 +199,7 @@ const Tester = forwardRef<HTMLFormElement, TypeTesterProps>(
 		const handleKeyDown = useCallback(
 			(e: KeyboardEvent) => {
 				e.preventDefault();
+				handleShortcuts(e);
 				const lastWord = words[words.length - 1];
 				const isLastWord = activeIndex === words.length - 1;
 				switch (e.code) {
@@ -231,6 +248,7 @@ const Tester = forwardRef<HTMLFormElement, TypeTesterProps>(
 				activeIndex,
 				handleNextWord,
 				handlePrevWord,
+				handleShortcuts,
 				isStart,
 				options.extraLimit,
 				start,
@@ -248,7 +266,6 @@ const Tester = forwardRef<HTMLFormElement, TypeTesterProps>(
 			document.removeEventListener('keydown', handleKeyDown);
 		}, [handleKeyDown]);
 
-		useHotkeys(SHORTCUTS.restart, restart, [restart]);
 		useEffect(() => {
 			attachEventListeners();
 			return () => {
@@ -258,9 +275,8 @@ const Tester = forwardRef<HTMLFormElement, TypeTesterProps>(
 
 		const filteredWords = words?.slice(hiddenIndexes.length, words?.length);
 		return (
-			<Form
-				ref={innerRef}
-				method="get"
+			<div
+				ref={ref}
 				className={clsx(
 					'grid grid-rows-[1fr_auto_1fr] font-mono h-full',
 					className,
@@ -346,7 +362,7 @@ const Tester = forwardRef<HTMLFormElement, TypeTesterProps>(
 						);
 					})}
 				</div>
-			</Form>
+			</div>
 		);
 	},
 );

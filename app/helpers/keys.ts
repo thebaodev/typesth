@@ -11,3 +11,14 @@ export const isFunctionKeys = (e: KeyboardEvent) => {
 		e.shiftKey
 	);
 };
+
+export const getShortcut = (e: KeyboardEvent) => {
+	const { code, ctrlKey, altKey, metaKey, shiftKey } = e;
+	const keys = [];
+	if (ctrlKey) keys.push('ctrl');
+	if (altKey) keys.push('alt');
+	if (metaKey) keys.push('meta');
+	if (shiftKey) keys.push('shift');
+	if (code) keys.push(code);
+	return keys.join('+').toLowerCase();
+};

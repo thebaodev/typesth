@@ -1,9 +1,9 @@
 import React, { forwardRef, useCallback, useEffect, useState } from 'react';
 import clsx from 'clsx';
-import { getShortcut } from '~/helpers/keys';
 import { SHORTCUTS, STATE_IDLE, TIMER_15 } from '~/constant';
 import { plural } from '~/helpers/plural';
 import useStore from '~/store';
+import { getShortcut } from '~/helpers/keys';
 
 type TestResultProps = {
 	className?: string;
